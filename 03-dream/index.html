@@ -108,17 +108,8 @@
     }
     .brand { display: flex; align-items: center; gap: 9px; font-size: 11px; letter-spacing: .18em; }
     .brand-mark {
-      position: relative; width: 22px; height: 22px;
-      border: 1px solid rgba(232, 215, 173, .7); border-radius: 50%;
-    }
-    .brand-mark::before {
-      content: ""; position: absolute; width: 13px; height: 13px;
-      top: 2px; left: 6px; border-radius: 50%; background: var(--night);
-    }
-    .brand-mark::after {
-      content: ""; position: absolute; width: 3px; height: 3px;
-      top: 0; right: -3px; border-radius: 50%; background: var(--gold);
-      box-shadow: 0 0 8px var(--gold);
+      width: 26px; height: 26px; object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .45));
     }
     .edition { color: var(--muted); font: 9px/1.4 Georgia, serif; letter-spacing: .16em; }
 
@@ -482,7 +473,7 @@
 
     <section class="screen cover active" id="coverScreen" aria-label="梦境画廊封面">
       <header class="topbar">
-        <div class="brand"><span class="brand-mark"></span><span>梦境画廊</span></div>
+        <div class="brand"><img class="brand-mark" src="img/mascot.png" alt=""><span>梦境画廊</span></div>
         <div class="edition">DREAM ATELIER<br>EST. 2026</div>
       </header>
       <div class="cover-hero">
@@ -548,7 +539,7 @@
 
     <section class="screen analysis-screen" id="analysisScreen" aria-label="AI 正在解析梦境">
       <header class="topbar">
-        <div class="brand"><span class="brand-mark"></span><span>梦境画廊</span></div>
+        <div class="brand"><img class="brand-mark" src="img/mascot.png" alt=""><span>梦境画廊</span></div>
         <div class="edition">02 / DREAMING</div>
       </header>
       <div class="analysis-content">
@@ -574,7 +565,7 @@
 
     <section class="screen result-screen" id="resultScreen" aria-label="你的专属梦境画作">
       <header class="topbar">
-        <div class="brand"><span class="brand-mark"></span><span>梦境画廊</span></div>
+        <div class="brand"><img class="brand-mark" src="img/mascot.png" alt=""><span>梦境画廊</span></div>
         <div class="gallery-index" id="galleryIndex">NO. 0001</div>
       </header>
       <div class="result-intro">
