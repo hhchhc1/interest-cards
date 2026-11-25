@@ -604,7 +604,13 @@
       let timers = [];
       let currentTheme = null;
       let currentDream = '';
+      let pendingArtwork = null;
       let toastTimer;
+
+      // 部署 Vercel 函数后，把地址填在这里，例如 https://your-app.vercel.app/api/dream
+      // 留空时自动使用本地 Canvas 绘制
+      const DREAM_API = '';
+      const AI_TIMEOUT = 26000;
 
       const themes = {
         fly: {
@@ -847,6 +853,7 @@
         clearTimers();
         currentDream = dream;
         currentTheme = detectTheme(dream);
+        pendingArtwork = null;
         $('#analysisDream').textContent = `“${dream}”`;
         $$('.analysis-step').forEach(step => step.classList.remove('active', 'done'));
         const progress = $('.progress-bar');
@@ -868,12 +875,67 @@
         timers.push(setTimeout(() => {
           steps.forEach(step => { step.classList.remove('active'); step.classList.add('done'); });
         }, 2200));
-        timers.push(setTimeout(showResult, 2780));
+
+        const wait = ms => new Promise(resolve => { timers.push(setTimeout(resolve, ms)); });
+        if (!DREAM_API) {
+          timers.push(setTimeout(showResult, 2780));
+          return;
+        }
+        const thirdStepText = steps[2].lastElementChild;
+        if (thirdStepText) thirdStepText.textContent = '正在为你绘制专属画面...';
+        const aiTask = requestDreamImage(dream).then(url => { pendingArtwork = url; });
+        Promise.all([wait(2780), Promise.race([aiTask, wait(AI_TIMEOUT + 500)])]).then(showResult);
+      }
+
+      function requestDreamImage(dream) {
+        if (!DREAM_API) return Promise.resolve(null);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), AI_TIMEOUT);
+        return fetch(DREAM_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dream }),
+          signal: controller.signal
+        }).then(response => (response.ok ? response.json() : null)).then(data => {
+          clearTimeout(timer);
+          return data && typeof data.image === 'string' && data.image.indexOf('data:image/') === 0 ? data.image : null;
+        }).catch(() => {
+          clearTimeout(timer);
+          return null;
+        });
+      }
+
+      function loadImage(src) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = src;
+        });
+      }
+
+      function drawAiArtwork(img) {
+        const scale = Math.max(W / img.width, H / img.height);
+        const w = img.width * scale, h = img.height * scale;
+        ctx.save();
+        ctx.clearRect(0, 0, W, H);
+        ctx.filter = 'saturate(1.05) contrast(1.03)';
+        ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+        ctx.filter = 'none';
+        ctx.fillStyle = linear(0, 0, 0, H, [[0, 'rgba(38,20,74,.16)'], [.55, 'rgba(0,0,0,0)'], [1, 'rgba(10,5,25,.3)']]);
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+        addGrain(randomGenerator(hashCode(currentDream)), true);
+        vignette();
       }
 
       function showResult() {
         const theme = currentTheme;
-        drawDream(theme, currentDream);
+        if (pendingArtwork) {
+          loadImage(pendingArtwork).then(img => drawAiArtwork(img)).catch(() => drawDream(theme, currentDream));
+        } else {
+          drawDream(theme, currentDream);
+        }
         $('#artTitle').textContent = theme.title;
         $('#artSubtitle').textContent = theme.subtitle;
         $('#readingText').textContent = theme.reading;
