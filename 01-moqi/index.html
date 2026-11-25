@@ -1750,7 +1750,7 @@
           </div>
           <p class="form-error" id="codeError" role="alert"></p>
           <button class="primary-button" id="startAnswerBtn" type="button"><span>开始答题</span><svg class="icon"><use href="#icon-arrow"/></svg></button>
-          <div class="demo-note"><span class="demo-dot"></span><span>原型使用 localStorage 模拟数据。请先用本页生成挑战，再在同一浏览器输入分享码体验完整流程。</span></div>
+          <div class="demo-note"><span class="demo-dot"></span><span>把上面的挑战链接发给朋友，TA 点开就能直接答题；手动输入暗号仅在同一浏览器内有效。</span></div>
         </div>
       </section>
 
@@ -1912,19 +1912,70 @@
         return challenges[code] || runtimeChallenges[code] || null;
       }
 
-      function generateCode() {
-        const challenges = readChallenges();
-        let code = "";
-        do {
-          code = "";
-          const values = new Uint32Array(6);
-          if (window.crypto && window.crypto.getRandomValues) {
-            window.crypto.getRandomValues(values);
-            for (let i = 0; i < 6; i += 1) code += CODE_CHARS[values[i] % CODE_CHARS.length];
-          } else {
-            for (let i = 0; i < 6; i += 1) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+      function toBase64Url(text) {
+        const bytes = new TextEncoder().encode(text);
+        let binary = "";
+        for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      }
+
+      function fromBase64Url(value) {
+        const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+        const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+        const binary = atob(padded);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+        return new TextDecoder().decode(bytes);
+      }
+
+      function sameQuestions(a, b) {
+        if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+        return a.every((item, index) => item.question === b[index].question &&
+          item.options.length === b[index].options.length &&
+          item.options.every((option, optionIndex) => option === b[index].options[optionIndex]));
+      }
+
+      function encodeChallenge(challenge) {
+        const payload = { v: 1, a: challenge.answers.map(Number) };
+        const questions = challenge.questions || cloneDefaults();
+        if (!sameQuestions(questions, DEFAULT_QUESTIONS)) {
+          payload.q = questions.map((item) => ({ q: item.question, o: item.options }));
+        }
+        return toBase64Url(JSON.stringify(payload));
+      }
+
+      function decodeChallenge(value) {
+        try {
+          const data = JSON.parse(fromBase64Url(value));
+          if (!data || Number(data.v) !== 1 || !Array.isArray(data.a) || data.a.length !== 5) return null;
+          const answers = data.a.map(Number);
+          if (!answers.every((answer) => Number.isInteger(answer) && answer >= 0 && answer < 4)) return null;
+          let questions = cloneDefaults();
+          if (Array.isArray(data.q)) {
+            questions = data.q.map((item) => ({
+              question: String(item && item.q ? item.q : ""),
+              options: Array.isArray(item && item.o) ? item.o.map(String) : []
+            }));
           }
-        } while (challenges[code] || runtimeChallenges[code]);
+          if (!isValidQuestions(questions)) return null;
+          return { code: codeFromPayload(value), questions, answers, payload: value, createdAt: new Date().toISOString() };
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function codeFromPayload(value) {
+        let hash = 2166136261;
+        for (let i = 0; i < value.length; i += 1) {
+          hash ^= value.charCodeAt(i);
+          hash = Math.imul(hash, 16777619) >>> 0;
+        }
+        let code = "";
+        let rest = hash;
+        for (let i = 0; i < 6; i += 1) {
+          code += CODE_CHARS[rest % CODE_CHARS.length];
+          rest = Math.floor(rest / CODE_CHARS.length) + (rest % 97) * 31;
+        }
         return code;
       }
 
@@ -2035,16 +2086,17 @@
       }
 
       function finishCreation() {
-        const code = generateCode();
-        state.activeCode = code;
-        state.currentChallenge = {
-          code,
+        const challenge = {
           questions: state.questions.map((item) => ({ question: item.question.trim(), options: item.options.map((option) => option.trim()) })),
           answers: [...state.creatorAnswers],
           createdAt: new Date().toISOString()
         };
-        saveChallenge(code, state.currentChallenge);
-        renderShareCode(code);
+        challenge.payload = encodeChallenge(challenge);
+        challenge.code = codeFromPayload(challenge.payload);
+        state.activeCode = challenge.code;
+        state.currentChallenge = challenge;
+        saveChallenge(challenge.code, challenge);
+        renderShareCode(challenge.code);
         showScreen("share");
       }
 
@@ -2056,8 +2108,9 @@
       function challengeLink() {
         const url = new URL(window.location.href.split("#")[0]);
         url.search = "";
-        url.searchParams.set("code", state.activeCode);
-        url.hash = "answer";
+        if (!state.currentChallenge) return url.toString();
+        const payload = state.currentChallenge.payload || encodeChallenge(state.currentChallenge);
+        url.searchParams.set("c", payload);
         return url.toString();
       }
 
@@ -2259,8 +2312,24 @@
       });
 
       state.questions = loadDraft();
-      const incomingCode = new URLSearchParams(window.location.search).get("code");
-      if (incomingCode) openCodeScreen(incomingCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6));
+      const incomingParams = new URLSearchParams(window.location.search);
+      const incomingPayload = incomingParams.get("c");
+      const incomingCode = incomingParams.get("code");
+      if (incomingPayload) {
+        const challenge = decodeChallenge(incomingPayload);
+        if (challenge) {
+          state.activeCode = challenge.code;
+          state.currentChallenge = challenge;
+          runtimeChallenges[challenge.code] = challenge;
+          openCodeScreen(challenge.code);
+          $("codeEyebrow").textContent = "链接已识别，直接开答";
+        } else {
+          openCodeScreen("");
+          showCodeError("这条挑战链接损坏了，让朋友重新发一次吧。");
+        }
+      } else if (incomingCode) {
+        openCodeScreen(incomingCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6));
+      }
     })();
   </script>
 </body>
