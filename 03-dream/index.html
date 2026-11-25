@@ -618,6 +618,25 @@
       const ZHIPU_URL = 'https://open.bigmodel.cn/api/paas/v4/images/generations';
       const AI_TIMEOUT = 60000;
 
+      // 生图模型会自动淡化血腥/伤害类描述，这里改写成等效的安全画面语言，保证梦境要素能真正画出来
+      const DREAM_VISUAL_MAP = [
+        [/有人受伤|受伤了|受伤|流血|伤口|见血/g, '事故现场，受损的车辆停在一旁，地面散落碎片与翻倒的护栏，远处有人被搀扶'],
+        [/车祸|撞车|事故/g, '路面散落着零件与破碎的灯罩，警示灯不停闪烁，远处有救护车的灯光'],
+        [/死亡|去世|葬礼|火化|墓碑/g, '远处一束白花，几个穿黑衣的人安静站立，天空低沉'],
+        [/打架|打斗|争吵|追打/g, '人群紧张地对峙，空气里飘着灰尘与火花'],
+        [/坠落|掉下去|摔下去/g, '身体悬在半空，四周是向上流动的光带'],
+        [/洪水|海啸|淹水/g, '水漫过街道，倒影被涟漪打碎'],
+        [/火灾|着火|大火/g, '火焰与浓烟升腾，橙红色光映在墙面上']
+      ];
+
+      function buildDreamPrompt(dream) {
+        let visual = dream;
+        DREAM_VISUAL_MAP.forEach(([pattern, replacement]) => {
+          visual = visual.replace(pattern, replacement);
+        });
+        return `超现实梦境摄影作品，画面必须同时包含：${visual}。电影感光影，柔和雾气，梦幻色调，细腻质感，构图完整，画面中没有文字。`;
+      }
+
       const themes = {
         fly: {
           title: '风替你张开翅膀', subtitle: 'THE SKY REMEMBERS YOUR NAME', stamp: '自由',
@@ -897,7 +916,7 @@
         if (!DREAM_API && !ZHIPU_KEY) return null;
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), AI_TIMEOUT);
-        const prompt = `超现实梦境插画：${dream}。电影感光影，柔和雾气，梦幻色调，细腻质感，构图精致，画面中没有文字。`;
+        const prompt = buildDreamPrompt(dream);
         try {
           const response = await fetch(DREAM_API || ZHIPU_URL, {
             method: 'POST',
