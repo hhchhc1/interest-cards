@@ -856,20 +856,68 @@
         '梦里出现的画面，往往是心里还没来得及命名的东西。',
         '不必急着寻找唯一答案，画里的每一束光都可以有自己的名字。',
         '潜意识说话的方式很温柔，它用画面代替了那些没说出口的话。',
-        '愿你在醒来以后，也愿意倾听心里细微而真诚的声音。'
+        '愿你在醒来以后，也愿意倾听心里细微而真诚的声音。',
+        '梦是心里的另一套语言，它把复杂的事说得很轻。',
+        '有些感受在白天太吵，只能在夜里用画面慢慢讲。',
+        '这个梦像一间临时的房间，暂时安放了你的一部分心绪。',
+        '梦不负责给答案，它负责让你看见自己在意什么。',
+        '白天的念头沉到夜里，会换一种样子浮上来。',
+        '梦境常常把几件小事拼在一起，拼出你没注意到的情绪。'
       ];
+
+      // 每段梦语由「主题解读 + 梦境原话片段 + 轮换追问」组合，避免反复看到同一句
+      const DREAM_QUOTES = [
+        '梦里那句「%s」，可能是白天没来得及细想的部分。',
+        '你说到「%s」——它在你心里，应该不只是一个画面。',
+        '「%s」这个片段，值得多停留一会儿。',
+        '关于「%s」，也许你已经有答案，只是还没说出口。',
+        '把「%s」放在心上，它多半对应着现实里的一件小事。'
+      ];
+
+      const DREAM_FOLLOWUPS = [
+        '不妨问问自己：这份感觉最近在现实里出现过吗？',
+        '如果这个梦有颜色，你会给它取什么名字？',
+        '醒来后第一个想起的人，也许就是答案的一部分。',
+        '不必急着解释，先记住它带来的那点情绪。',
+        '有些梦是提醒，有些只是替你放松一下。',
+        '试着用一句话写下这个梦，往往会有新的发现。',
+        '如果梦里可以改一个细节，你想改哪里？',
+        '这个梦出现的时机，可能比内容更值得留意。',
+        '把它当成一封没署名的信，慢慢读。',
+        '最近有哪件事，让你想起梦里的那个瞬间？',
+        '梦不一定给答案，它更像在陪你想问题。',
+        '留一点时间给自己，梦通常会自己变清楚。'
+      ];
+
+      function extractSnippet(dream) {
+        const cleaned = dream
+          .replace(/^(我)?(昨晚|昨天|夜里|晚上|前天)?(做梦)?(梦见|梦到|梦到了|梦)/, '')
+          .replace(/[，。、,.;；!！?？~～\s]+/g, '|')
+          .trim();
+        const parts = cleaned.split('|').filter(part => part.length >= 2);
+        if (!parts.length) return dream.slice(0, 12);
+        const longest = parts.reduce((a, b) => (b.length > a.length ? b : a), parts[0]);
+        return longest.slice(0, 16);
+      }
+
+      function buildReading(theme, dream) {
+        const seed = hashCode(dream);
+        const snippet = extractSnippet(dream);
+        const quote = DREAM_QUOTES[seed % DREAM_QUOTES.length].replace('%s', snippet);
+        const follow = DREAM_FOLLOWUPS[(seed >>> 5) % DREAM_FOLLOWUPS.length];
+        return `${theme.reading} ${quote}${follow}`;
+      }
 
       function buildAutoTheme(text) {
         const seed = hashCode(text);
         const palette = AUTO_PALETTES[seed % AUTO_PALETTES.length];
         const title = AUTO_TITLES[Math.floor(seed / 7) % AUTO_TITLES.length];
-        const snippet = text.replace(/\s+/g, '').slice(0, 14);
         return {
           key: 'auto',
           title: title[0],
           subtitle: title[1],
           stamp: '梦境',
-          reading: `${AUTO_READINGS[(seed >>> 3) % AUTO_READINGS.length]}你提到的「${snippet}」，也许正是潜意识想让你重新看一眼的地方。`,
+          reading: AUTO_READINGS[(seed >>> 3) % AUTO_READINGS.length],
           vis: { palette, motif: 'constellation' }
         };
       }
@@ -1043,7 +1091,7 @@
         }
         $('#artTitle').textContent = theme.title;
         $('#artSubtitle').textContent = theme.subtitle;
-        $('#readingText').textContent = theme.reading;
+        $('#readingText').textContent = buildReading(theme, currentDream);
         $('#originalDream').textContent = `梦境手记 / ${currentDream}`;
         renderDecode(theme.key);
         $('#galleryIndex').textContent = `NO. ${String(Math.floor(hashCode(currentDream) % 9000) + 1000).padStart(4, '0')}`;
