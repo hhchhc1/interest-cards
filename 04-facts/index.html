@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>冷知识探索器｜你知道吗？</title>
+  <style>
+    :root {
+      --ink: #20213d;
+      --muted: #7d809b;
+      --line: #ececf4;
+      --paper: #f7f8fc;
+      --purple: #7357f6;
+      --purple-dark: #5436dc;
+      --green: #20b97a;
+      --blue: #3985f5;
+      --shadow: 0 18px 45px rgba(43, 42, 87, .12);
+      --soft-shadow: 0 8px 24px rgba(43, 42, 87, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(115, 87, 246, .10), transparent 28%),
+        radial-gradient(circle at 85% 80%, rgba(32, 201, 180, .10), transparent 30%),
+        #eef0f7;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; }
+    button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, [role="button"]:focus-visible {
+      outline: 3px solid rgba(115, 87, 246, .35);
+      outline-offset: 3px;
+    }
+    button:disabled { cursor: default; }
+    [hidden] { display: none !important; }
+
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0 auto;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(115, 87, 246, .07), transparent 25%),
+        radial-gradient(circle at 0% 92%, rgba(255, 184, 76, .08), transparent 25%),
+        var(--paper);
+      box-shadow: 0 0 60px rgba(43, 42, 87, .08);
+    }
+
+    .screen {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 0 20px calc(24px + env(safe-area-inset-bottom));
+      animation: screenIn .35s ease both;
+    }
+
+    .topbar {
+      height: 68px;
+      padding-top: env(safe-area-inset-top);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -.2px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      color: white;
+      background: linear-gradient(145deg, #8b72ff, #6345e8);
+      box-shadow: 0 5px 12px rgba(115, 87, 246, .24);
+      font-size: 16px;
+      transform: rotate(-5deg);
+    }
+
+    .icon-button, .achievement-button {
+      border: 0;
+      color: var(--ink);
+      background: white;
+      box-shadow: 0 4px 14px rgba(43, 42, 87, .07);
+      cursor: pointer;
+    }
+
+    .icon-button {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      font-size: 21px;
+    }
+
+    .achievement-button {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* 封面 */
+    .cover-screen {
+      display: flex;
+      flex-direction: column;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    .cover-nav {
+      height: 66px;
+      padding-top: env(safe-area-inset-top);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cover-count {
+      padding: 7px 10px;
+      border: 1px solid #e8e4ff;
+      border-radius: 999px;
+      color: var(--purple-dark);
+      background: #f1edff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .cover-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 8px;
+    }
+
+    .cover-visual {
+      position: relative;
+      width: 176px;
+      height: 158px;
+      margin-bottom: 2px;
+      display: grid;
+      place-items: center;
+    }
+
+    .orbit {
+      position: absolute;
+      border: 1px dashed rgba(115, 87, 246, .22);
+      border-radius: 50%;
+      animation: spin 24s linear infinite;
+    }
+
+    .orbit-one { width: 148px; height: 148px; }
+    .orbit-two { width: 116px; height: 116px; animation-direction: reverse; animation-duration: 18s; }
+
+    .hero-emoji {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 108px;
+      height: 108px;
+      border: 7px solid white;
+      border-radius: 36px;
+      background: linear-gradient(145deg, #ede8ff, #fff0f7);
+      box-shadow: 0 16px 35px rgba(115, 87, 246, .18);
+      font-size: 67px;
+      transform: rotate(-5deg);
+      animation: heroFloat 3.8s ease-in-out infinite;
+    }
+
+    .float-fact {
+      position: absolute;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 3px solid white;
+      border-radius: 14px;
+      background: white;
+      box-shadow: var(--soft-shadow);
+      font-size: 22px;
+    }
+
+    .float-one { top: 9px; right: 0; transform: rotate(10deg); }
+    .float-two { bottom: 7px; left: 1px; transform: rotate(-10deg); }
+    .float-three { right: -3px; bottom: 17px; width: 33px; height: 33px; font-size: 17px; transform: rotate(8deg); }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0 0 6px;
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .eyebrow::before, .eyebrow::after {
+      content: "";
+      width: 14px;
+      height: 2px;
+      border-radius: 2px;
+      background: #d7ceff;
+    }
+
+    .cover-title {
+      margin: 0;
+      font-size: clamp(40px, 12vw, 50px);
+      line-height: 1.16;
+      letter-spacing: -2.5px;
+      font-weight: 950;
+      background: linear-gradient(105deg, #252541 12%, #684be9 55%, #e34d9a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .cover-subtitle {
+      margin: 7px 0 17px;
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: .5px;
+    }
+
+    .hook-card {
+      position: relative;
+      width: 100%;
+      padding: 17px 18px 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, .88);
+      box-shadow: var(--soft-shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hook-card::after {
+      content: "?";
+      position: absolute;
+      right: -4px;
+      top: -24px;
+      color: rgba(115, 87, 246, .055);
+      font-size: 115px;
+      line-height: 1;
+      font-weight: 950;
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .hook-label {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--purple);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .hook-label span:last-child {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #f0ebff;
+      font-size: 13px;
+    }
+
+    .hook-card > p {
+      position: relative;
+      z-index: 1;
+      margin: 10px 0 11px;
+      font-size: 16px;
+      line-height: 1.65;
+      font-weight: 600;
+    }
+
+    .hook-card strong { color: #6949dd; font-weight: 850; }
+
+    .hook-foot {
+      position: relative;
+      z-index: 1;
+      padding-top: 10px;
+      border-top: 1px dashed #e8e5f1;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .cover-progress {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-radius: 13px;
+      color: #5c4bb0;
+      background: #efebff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .primary-button {
+      width: 100%;
+      min-height: 56px;
+      margin-top: 16px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      border: 0;
+      border-radius: 18px;
+      color: white;
+      background: linear-gradient(110deg, #8063fa, #6748e5 65%, #5939d5);
+      box-shadow: 0 12px 24px rgba(103, 72, 229, .28), inset 0 1px rgba(255, 255, 255, .25);
+      font-size: 16px;
+      font-weight: 850;
+      letter-spacing: .5px;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .primary-button:active { transform: translateY(2px) scale(.99); box-shadow: 0 7px 16px rgba(103, 72, 229, .23); }
+
+    .button-arrow {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .17);
+      font-size: 20px;
+      transition: transform .2s ease;
+    }
+
+    .primary-button:hover .button-arrow { transform: translateX(3px); }
+
+    .text-button {
+      margin-top: 10px;
+      padding: 5px 10px;
+      border: 0;
+      color: #999bb0;
+      background: transparent;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .cover-tip {
+      margin: 10px 0 0;
+      color: #9b9db0;
+      font-size: 11px;
+    }
+
+    .cover-footer {
+      padding: 16px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      color: #8b8da3;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .cover-footer i { width: 3px; height: 3px; border-radius: 50%; background: #c6c5d3; }
+
+    /* 探索页 */
+    .explore-screen { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+
+    .progress-panel { margin: 4px 1px 16px; }
+
+    .progress-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .progress-heading span { color: var(--muted); font-weight: 600; }
+    .progress-heading strong { color: var(--purple-dark); font-size: 12px; }
+
+    .progress-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #e8e8f1;
+      box-shadow: inset 0 1px 2px rgba(43, 42, 87, .06);
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #8a6efa, #6c4ce5, #dc5aa8);
+      box-shadow: 0 0 8px rgba(115, 87, 246, .25);
+      transition: width .45s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .next-achievement {
+      margin-top: 7px;
+      color: #999bb0;
+      font-size: 10px;
+      text-align: right;
+    }
+
+    .explorer-stage { display: flex; flex-direction: column; }
+
+    .card-stage {
+      position: relative;
+      height: clamp(370px, 53vh, 430px);
+      min-height: 370px;
+      perspective: 1400px;
+    }
+
+    .flip-card {
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform .62s cubic-bezier(.2, .72, .2, 1);
+    }
+
+    .flip-card.is-flipped .card-inner { transform: rotateY(180deg); }
+
+    .fact-card {
+      --card-start: #8063fa;
+      --card-end: #dd559e;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 22px;
+      border: 1px solid rgba(255, 255, 255, .34);
+      border-radius: 28px;
+      color: white;
+      background: linear-gradient(145deg, var(--card-start), var(--card-end));
+      box-shadow: 0 22px 38px color-mix(in srgb, var(--card-end) 25%, transparent), inset 0 1px rgba(255, 255, 255, .28);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .fact-card::before, .fact-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .fact-card::before {
+      width: 220px;
+      height: 220px;
+      top: -115px;
+      right: -88px;
+      border: 35px solid rgba(255, 255, 255, .09);
+    }
+
+    .fact-card::after {
+      width: 145px;
+      height: 145px;
+      left: -82px;
+      bottom: -72px;
+      background: rgba(255, 255, 255, .07);
+    }
+
+    .card-back {
+      padding-top: 20px;
+      padding-bottom: 20px;
+      transform: rotateY(180deg);
+    }
+
+    .card-back::before {
+      width: 260px;
+      height: 260px;
+      top: auto;
+      right: -130px;
+      bottom: -125px;
+      border-width: 42px;
+    }
+
+    .fact-meta {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 11px;
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 999px;
+      background: rgba(30, 25, 70, .15);
+      backdrop-filter: blur(5px);
+    }
+
+    .fact-number { opacity: .78; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+
+    .front-content {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0 0;
+      text-align: center;
+    }
+
+    .fact-emoji {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 104px;
+      height: 104px;
+      margin-bottom: 17px;
+      border: 1px solid rgba(255, 255, 255, .38);
+      border-radius: 34px;
+      background: rgba(255, 255, 255, .18);
+      box-shadow: inset 0 1px rgba(255, 255, 255, .26), 0 12px 25px rgba(36, 24, 74, .12);
+      font-size: 65px;
+      transform: rotate(-4deg);
+    }
+
+    .fact-emoji::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border: 1px dashed rgba(255, 255, 255, .19);
+      border-radius: 27px;
+    }
+
+    .card-kicker {
+      margin: 0 0 7px;
+      color: rgba(255, 255, 255, .76);
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 1.2px;
+    }
+
+    .fact-title {
+      margin: 0;
+      max-width: 280px;
+      font-size: clamp(25px, 7.4vw, 30px);
+      line-height: 1.35;
+      letter-spacing: -.7px;
+      font-weight: 900;
+      text-wrap: balance;
+      text-shadow: 0 3px 12px rgba(32, 22, 69, .13);
+    }
+
+    .fact-teaser {
+      margin: 10px 0 0;
+      color: rgba(255, 255, 255, .83);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .flip-hint {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: rgba(255, 255, 255, .76);
+      font-size: 10px;
+      letter-spacing: .4px;
+    }
+
+    .flip-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 21px;
+      height: 21px;
+      border: 1px solid rgba(255, 255, 255, .26);
+      border-radius: 50%;
+      font-size: 13px;
+    }
+
+    .back-heading {
+      position: relative;
+      z-index: 2;
+      margin: 14px 0 10px;
+    }
+
+    .back-heading span {
+      display: block;
+      margin-bottom: 5px;
+      color: rgba(255, 255, 255, .72);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    .back-heading h2 {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.3;
+      font-weight: 900;
+      letter-spacing: -.4px;
+    }
+
+    .explanation {
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px;
+      color: rgba(255, 255, 255, .78);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .explanation p {
+      margin: 0;
+      color: rgba(255, 255, 255, .95);
+      font-size: 13.5px;
+      line-height: 1.7;
+      font-weight: 500;
+      text-align: justify;
+    }
+
+    .fun-extension {
+      position: relative;
+      z-index: 2;
+      margin: 11px 0 10px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, .35);
+      border-radius: 16px;
+      color: #37334d;
+      background: rgba(255, 255, 255, .90);
+      box-shadow: 0 8px 20px rgba(37, 26, 74, .09);
+    }
+
+    .fun-extension .section-label { margin-bottom: 4px; color: #7657d9; }
+    .fun-extension p { margin: 0; font-size: 11px; line-height: 1.65; }
+
+    .card-back .flip-hint { margin-top: auto; }
+
+    .card-stage.slide-out { animation: cardOut .26s ease both; }
+    .card-stage.slide-in { animation: cardIn .34s cubic-bezier(.2, .8, .2, 1) both; }
+
+    .vote-burst {
+      position: absolute;
+      z-index: 10;
+      left: 50%;
+      top: 46%;
+      padding: 12px 18px;
+      border-radius: 999px;
+      color: #282641;
+      background: white;
+      box-shadow: 0 14px 32px rgba(34, 30, 70, .22);
+      font-size: 18px;
+      font-weight: 900;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(.5);
+    }
+
+    .vote-burst.show { animation: votePop .75s ease both; }
+
+    .question-prompt {
+      margin: 15px 0 10px;
+      color: #74768e;
+      font-size: 12px;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .vote-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+    .vote-button {
+      min-width: 0;
+      min-height: 62px;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 18px;
+      color: white;
+      cursor: pointer;
+      transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+    }
+
+    .vote-button:active:not(:disabled) { transform: translateY(2px) scale(.98); }
+    .vote-button:disabled { opacity: .65; }
+    .vote-button > span:first-child { font-size: 25px; }
+    .vote-button > span:last-child { display: flex; flex-direction: column; align-items: flex-start; }
+    .vote-button strong { font-size: 13px; line-height: 1.4; font-weight: 850; white-space: nowrap; }
+    .vote-button small { margin-top: 2px; color: rgba(255, 255, 255, .76); font-size: 9px; white-space: nowrap; }
+
+    .mind-blown {
+      background: linear-gradient(135deg, #2acb88, #16a96e);
+      box-shadow: 0 9px 20px rgba(28, 182, 119, .23), inset 0 1px rgba(255, 255, 255, .25);
+    }
+
+    .already-knew {
+      background: linear-gradient(135deg, #57a2ff, #3478e8);
+      box-shadow: 0 9px 20px rgba(52, 120, 232, .23), inset 0 1px rgba(255, 255, 255, .25);
+    }
+
+    .auto-hint { margin: 8px 0 0; color: #acadbd; font-size: 9px; text-align: center; }
+
+    /* 成就页 */
+    .achievements-screen { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+
+    .achievement-hero {
+      position: relative;
+      margin-top: 7px;
+      padding: 22px 18px 18px;
+      overflow: hidden;
+      border-radius: 26px;
+      color: white;
+      background: linear-gradient(140deg, #7c60f4, #6748dd 58%, #b24fc2);
+      box-shadow: 0 18px 36px rgba(103, 72, 221, .22);
+      text-align: center;
+    }
+
+    .achievement-hero::before, .achievement-hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .07);
+    }
+
+    .achievement-hero::before { width: 170px; height: 170px; top: -105px; left: -65px; }
+    .achievement-hero::after { width: 130px; height: 130px; right: -60px; bottom: -70px; }
+
+    .hero-overline {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 11px;
+      color: rgba(255, 255, 255, .64);
+      font-size: 9px;
+      font-weight: 750;
+      letter-spacing: 1.7px;
+    }
+
+    .achievement-medal {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 78px;
+      height: 78px;
+      margin: 0 auto 10px;
+      border: 1px solid rgba(255, 255, 255, .3);
+      border-radius: 25px;
+      background: rgba(255, 255, 255, .16);
+      box-shadow: inset 0 1px rgba(255, 255, 255, .25);
+      font-size: 47px;
+      transform: rotate(-4deg);
+    }
+
+    .achievement-hero h2 {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -.4px;
+    }
+
+    .achievement-summary {
+      position: relative;
+      z-index: 1;
+      margin: 7px auto 15px;
+      max-width: 270px;
+      color: rgba(255, 255, 255, .75);
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    .collection-progress {
+      position: relative;
+      z-index: 1;
+      padding: 11px 13px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 15px;
+      background: rgba(32, 20, 85, .12);
+    }
+
+    .collection-progress > div:first-child {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 7px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .collection-progress .progress-track { height: 6px; background: rgba(255, 255, 255, .16); }
+    .collection-progress .progress-fill { background: linear-gradient(90deg, #ffe282, #fff6bf); box-shadow: none; }
+
+    .vote-stats {
+      margin: 14px 0 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px;
+    }
+
+    .stat-card {
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      border: 1px solid #ededf4;
+      border-radius: 17px;
+      background: white;
+      box-shadow: 0 5px 16px rgba(43, 42, 87, .045);
+      text-align: left;
+    }
+
+    .stat-card > span { font-size: 26px; }
+    .stat-card div { display: flex; flex-direction: column; }
+    .stat-card strong { font-size: 19px; line-height: 1.2; }
+    .stat-card small { margin-top: 2px; color: var(--muted); font-size: 10px; }
+
+    .collection-heading {
+      margin: 0 1px 10px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+    }
+
+    .collection-heading h3 { margin: 0; font-size: 15px; }
+    .collection-heading span { color: #a1a2b4; font-size: 10px; }
+
+    .milestone-list { display: grid; gap: 10px; }
+
+    .milestone-card {
+      position: relative;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 12px;
+      align-items: center;
+      overflow: hidden;
+      border: 1px solid #ececf3;
+      border-radius: 19px;
+      background: white;
+      box-shadow: 0 5px 16px rgba(43, 42, 87, .045);
+    }
+
+    .milestone-card.unlocked { border-color: #e4ddff; background: linear-gradient(110deg, #fff, #f5f1ff); }
+    .milestone-card.locked { filter: saturate(.55); }
+
+    .milestone-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: #f0eff5;
+      font-size: 27px;
+    }
+
+    .unlocked .milestone-icon { background: linear-gradient(145deg, #ede6ff, #ffe9f5); }
+
+    .milestone-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .milestone-title-row h4 { margin: 0; font-size: 13px; }
+    .milestone-title-row span { color: var(--purple); font-size: 9px; font-weight: 800; }
+    .milestone-card p { margin: 4px 0 7px; color: #9092a7; font-size: 10px; line-height: 1.4; }
+    .milestone-card .progress-track { height: 4px; }
+    .milestone-card .progress-fill { box-shadow: none; }
+
+    .achievement-actions { margin-top: 18px; }
+    .achievement-actions .primary-button { margin-top: 0; }
+
+    .secondary-button {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 9px;
+      border: 1px solid #e5e3ee;
+      border-radius: 15px;
+      color: #77798f;
+      background: white;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .save-note { margin: 12px 0 0; color: #adaebf; font-size: 9px; text-align: center; }
+
+    /* 弹窗与轻提示 */
+    .toast {
+      position: fixed;
+      z-index: 80;
+      left: 50%;
+      bottom: calc(25px + env(safe-area-inset-bottom));
+      max-width: calc(100vw - 44px);
+      padding: 11px 16px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 999px;
+      color: white;
+      background: rgba(35, 34, 57, .92);
+      box-shadow: 0 10px 30px rgba(28, 27, 48, .2);
+      backdrop-filter: blur(10px);
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 15px);
+    }
+
+    .toast.show { animation: toastIn 2.2s ease both; }
+
+    .modal-overlay {
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      overflow-y: auto;
+      background: rgba(29, 25, 56, .56);
+      backdrop-filter: blur(7px);
+    }
+
+    .celebration-card {
+      position: relative;
+      z-index: 2;
+      width: min(100%, 326px);
+      padding: 29px 24px 23px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .8);
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(115, 87, 246, .12), transparent 37%),
+        white;
+      box-shadow: 0 28px 70px rgba(22, 17, 55, .28);
+      text-align: center;
+      animation: modalPop .42s cubic-bezier(.18, .89, .32, 1.28) both;
+    }
+
+    .celebration-card::before {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      left: 50%;
+      top: -95px;
+      border: 25px solid rgba(115, 87, 246, .05);
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+
+    .celebration-emoji {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 15px;
+      border: 6px solid white;
+      border-radius: 30px;
+      background: linear-gradient(145deg, #eee8ff, #ffeaf5);
+      box-shadow: 0 12px 28px rgba(115, 87, 246, .18);
+      font-size: 54px;
+      transform: rotate(-5deg);
+      animation: medalBounce 1.6s ease-in-out infinite;
+    }
+
+    .celebration-kicker { margin: 0 0 5px; color: var(--purple); font-size: 11px; font-weight: 850; letter-spacing: 3px; }
+    .celebration-card h2 { margin: 0; font-size: 27px; line-height: 1.35; font-weight: 950; letter-spacing: -.5px; }
+    .celebration-description { margin: 10px 0 15px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+
+    .unlock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: #6650bc;
+      background: #f0ebff;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .celebration-card .primary-button { margin-top: 20px; min-height: 51px; border-radius: 16px; font-size: 14px; }
+    .confetti { position: fixed; z-index: 1; inset: 0; overflow: hidden; pointer-events: none; }
+    .confetti-piece {
+      position: absolute;
+      top: -24px;
+      width: 8px;
+      height: 13px;
+      border-radius: 2px;
+      animation: confettiFall var(--duration) linear var(--delay) both;
+    }
+
+    body.modal-open { overflow: hidden; }
+
+    @keyframes screenIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+    @keyframes heroFloat { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-7px) rotate(1deg); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes cardOut { to { opacity: 0; transform: translateX(-58px) rotate(-3deg) scale(.97); } }
+    @keyframes cardIn { from { opacity: 0; transform: translateX(58px) rotate(3deg) scale(.97); } to { opacity: 1; transform: none; } }
+    @keyframes votePop {
+      0% { opacity: 0; transform: translate(-50%, -35%) scale(.55) rotate(-7deg); }
+      25% { opacity: 1; transform: translate(-50%, -50%) scale(1.08) rotate(3deg); }
+      65% { opacity: 1; transform: translate(-50%, -65%) scale(1) rotate(0); }
+      100% { opacity: 0; transform: translate(-50%, -105%) scale(.9); }
+    }
+    @keyframes toastIn {
+      0% { opacity: 0; transform: translate(-50%, 15px); }
+      12%, 82% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -8px); }
+    }
+    @keyframes modalPop { from { opacity: 0; transform: translateY(20px) scale(.82); } to { opacity: 1; transform: none; } }
+    @keyframes medalBounce { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-5px) rotate(3deg); } }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translate3d(0, -5vh, 0) rotate(0); }
+      100% { opacity: .8; transform: translate3d(var(--drift), 110vh, 0) rotate(760deg); }
+    }
+
+    @media (min-width: 431px) {
+      .app { margin-top: 18px; margin-bottom: 18px; min-height: calc(100vh - 36px); border-radius: 28px; }
+      .screen { min-height: calc(100vh - 36px); }
+    }
+
+    @media (max-height: 730px) {
+      .cover-visual { width: 145px; height: 125px; }
+      .hero-emoji { width: 90px; height: 90px; border-radius: 29px; font-size: 54px; }
+      .orbit-one { width: 120px; height: 120px; }
+      .orbit-two { width: 96px; height: 96px; }
+      .cover-subtitle { margin-bottom: 12px; }
+      .hook-card { padding-top: 13px; padding-bottom: 11px; }
+      .hook-card > p { margin: 7px 0 8px; font-size: 14px; }
+      .cover-tip { margin-top: 7px; }
+      .card-stage { height: 370px; }
+      .fact-card { padding: 19px; }
+      .fact-emoji { width: 84px; height: 84px; margin-bottom: 12px; font-size: 52px; border-radius: 28px; }
+      .back-heading { margin: 12px 0 9px; }
+      .explanation p { font-size: 13px; line-height: 1.65; }
+      .fun-extension { margin: 10px 0; padding: 9px 11px; }
+    }
+
+    @media (max-width: 350px) {
+      .screen { padding-left: 15px; padding-right: 15px; }
+      .vote-button { gap: 5px; padding-left: 7px; padding-right: 7px; }
+      .vote-button > span:first-child { font-size: 22px; }
+      .vote-button strong { font-size: 12px; }
+      .fact-card { padding: 19px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <section class="screen cover-screen" id="coverScreen" aria-labelledby="coverTitle">
+      <header class="cover-nav">
+        <div class="brand"><span class="brand-mark">?</span>冷知识探索器</div>
+        <span class="cover-count">20 个神奇真相</span>
+      </header>
+
+      <div class="cover-content">
+        <div class="cover-visual" aria-hidden="true">
+          <span class="orbit orbit-one"></span>
+          <span class="orbit orbit-two"></span>
+          <div class="hero-emoji">🐙</div>
+          <span class="float-fact float-one">🌙</span>
+          <span class="float-fact float-two">🍯</span>
+          <span class="float-fact float-three">🧠</span>
+        </div>
+
+        <p class="eyebrow">给好奇心一点奖励</p>
+        <h1 class="cover-title" id="coverTitle">你知道吗？</h1>
+        <p class="cover-subtitle">世界远比想象中更会「整活」</p>
+
+        <article class="hook-card">
+          <div class="hook-label"><span>今日反直觉</span><span>↗</span></div>
+          <p>章鱼有三个心脏，<strong>游泳时其中一个会暂停跳动。</strong></p>
+          <div class="hook-foot">🐙 不是偷懒，是在节省体力</div>
+        </article>
+
+        <div class="cover-progress" id="coverProgress" hidden>
+          <span id="coverProgressText">上次探索到 0 / 20</span>
+          <span>继续出发 →</span>
+        </div>
+
+        <button class="primary-button" id="startButton" type="button">
+          <span id="startButtonLabel">开始探索</span><span class="button-arrow">→</span>
+        </button>
+        <button class="text-button" id="resetButton" type="button" hidden>清空探索记录</button>
+        <p class="cover-tip">👆 翻一翻，遇见 20 个「原来如此」</p>
+      </div>
+
+      <footer class="cover-footer">
+        <span>动物</span><i></i><span>人体</span><i></i><span>宇宙</span><i></i><span>食物</span><i></i><span>历史</span><i></i><span>科技</span>
+      </footer>
+    </section>
+
+    <section class="screen explore-screen" id="exploreScreen" aria-label="翻牌探索" hidden>
+      <header class="topbar">
+        <button class="icon-button" id="exploreBackButton" type="button" aria-label="返回封面">←</button>
+        <div class="brand"><span class="brand-mark">?</span>冷知识探索器</div>
+        <button class="achievement-button" id="achievementButton" type="button">🏆 <span>成就</span></button>
+      </header>
+
+      <section class="progress-panel" aria-label="探索进度">
+        <div class="progress-heading">
+          <span>好奇心收集进度</span>
+          <strong id="progressText" aria-live="polite">已探索 0 / 20</strong>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="mainProgressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="next-achievement" id="nextAchievement">再探索 5 条，解锁「好奇心宝宝」</div>
+      </section>
+
+      <section class="explorer-stage">
+        <div class="card-stage" id="cardStage">
+          <div class="flip-card" id="flipCard" role="button" tabindex="0" aria-label="冷知识卡片，点击或左右滑动翻面">
+            <div class="card-inner" id="cardInner">
+              <article class="fact-card card-front" id="cardFront" aria-hidden="false">
+                <div class="fact-meta">
+                  <span class="category-pill" id="factCategory">🐙 动物世界</span>
+                  <span class="fact-number" id="factNumber">01 / 20</span>
+                </div>
+                <div class="front-content">
+                  <div class="fact-emoji" id="factEmoji">🐙</div>
+                  <p class="card-kicker">这一条，你大概率想不到</p>
+                  <h2 class="fact-title" id="factTitle">章鱼有三个心脏</h2>
+                  <p class="fact-teaser" id="factTeaser">游泳时，它会主动「关掉」一个？</p>
+                </div>
+                <div class="flip-hint"><span class="flip-icon">↻</span>轻点或左右滑动翻面</div>
+              </article>
+
+              <article class="fact-card card-back" id="cardBack" aria-hidden="true">
+                <div class="fact-meta">
+                  <span class="category-pill" id="backCategory">🐙 动物世界</span>
+                  <span class="fact-number" id="backNumber">真相揭晓</span>
+                </div>
+                <div class="back-heading">
+                  <span>DID YOU KNOW?</span>
+                  <h2 id="backTitle">章鱼有三个心脏</h2>
+                </div>
+                <div class="explanation">
+                  <span class="section-label">💡 真相是</span>
+                  <p id="factDetail"></p>
+                </div>
+                <div class="fun-extension">
+                  <span class="section-label">✨ 趣味延伸</span>
+                  <p id="factExtra"></p>
+                </div>
+                <div class="flip-hint"><span class="flip-icon">↻</span>再点一次，返回正面</div>
+              </article>
+            </div>
+          </div>
+          <div class="vote-burst" id="voteBurst" aria-hidden="true">🤯 +1</div>
+        </div>
+
+        <p class="question-prompt">看完这条，你的第一反应是？</p>
+        <div class="vote-actions">
+          <button class="vote-button mind-blown" id="mindBlownButton" type="button">
+            <span>🤯</span><span><strong>涨知识了</strong><small>收入我的好奇心</small></span>
+          </button>
+          <button class="vote-button already-knew" id="alreadyKnewButton" type="button">
+            <span>😎</span><span><strong>早就知道</strong><small>不愧是我</small></span>
+          </button>
+        </div>
+        <p class="auto-hint">投票后自动滑向下一条 · 进度自动保存</p>
+      </section>
+    </section>
+
+    <section class="screen achievements-screen" id="achievementsScreen" aria-label="我的成就" hidden>
+      <header class="topbar">
+        <button class="icon-button" id="achievementBackButton" type="button" aria-label="返回上一页">←</button>
+        <div class="brand"><span class="brand-mark">🏆</span>好奇心收藏馆</div>
+        <span style="width:38px" aria-hidden="true"></span>
+      </header>
+
+      <section class="achievement-hero">
+        <p class="hero-overline">MY CURIOSITY COLLECTION</p>
+        <div class="achievement-medal" id="achievementEmoji">🌱</div>
+        <h2 id="currentTitle">好奇心正在发芽</h2>
+        <p class="achievement-summary" id="achievementSummary">每一条冷知识，都是看世界的新角度。</p>
+        <div class="collection-progress">
+          <div><span>冷知识图鉴</span><span id="collectionCount">0 / 20</span></div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="collectionProgressBar">
+            <div class="progress-fill" id="collectionProgressFill"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="vote-stats" aria-label="投票统计">
+        <div class="stat-card"><span>🤯</span><div><strong id="newKnowledgeCount">0</strong><small>次涨知识了</small></div></div>
+        <div class="stat-card"><span>😎</span><div><strong id="alreadyKnewCount">0</strong><small>次早就知道</small></div></div>
+      </div>
+
+      <div class="collection-heading"><h3>称号图鉴</h3><span>探索即可点亮</span></div>
+      <div class="milestone-list" id="milestoneList"></div>
+
+      <div class="achievement-actions">
+        <button class="primary-button" id="continueButton" type="button"><span id="continueButtonLabel">继续探索</span><span class="button-arrow">→</span></button>
+        <button class="secondary-button" id="achievementHomeButton" type="button">返回封面</button>
+      </div>
+      <p class="save-note">✓ 探索进度已自动保存在这台设备</p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-overlay" id="celebrationModal" role="dialog" aria-modal="true" aria-labelledby="celebrationTitle" hidden>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+    <div class="celebration-card">
+      <div class="celebration-emoji" id="celebrationEmoji">🐣</div>
+      <p class="celebration-kicker">称号解锁</p>
+      <h2 id="celebrationTitle">好奇心宝宝</h2>
+      <p class="celebration-description" id="celebrationDescription"></p>
+      <div class="unlock-pill">已探索 <span id="celebrationCount">5</span> / 20 条</div>
+      <button class="primary-button" id="celebrationButton" type="button"><span id="celebrationButtonLabel">继续探索</span><span class="button-arrow">→</span></button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const facts = [
+        {
+          id: 1, category: "动物世界", categoryIcon: "🐾", emoji: "🐙",
+          title: "章鱼有三个心脏",
+          teaser: "游泳时，它会主动「关掉」一个？",
+          detail: "章鱼的两颗鳃心脏负责把血液泵过鳃，另一颗体心脏负责全身循环。游泳时体心脏会暂时停跳，耗氧量因此增加，所以它们更偏爱省力的爬行。",
+          extra: "章鱼的血液还是蓝色的！它用含铜的血蓝蛋白运输氧气，而不是人类血液中的含铁血红蛋白。",
+          colors: ["#8059dc", "#d94891"]
+        },
+        {
+          id: 2, category: "食物真相", categoryIcon: "🍽️", emoji: "🍯",
+          title: "蜂蜜几乎不会变质",
+          teaser: "三千年前的蜂蜜，还可能吃？",
+          detail: "蜂蜜含水量极低、酸度较高，还含有少量过氧化氢，让多数微生物难以生存。只要密封保存、避免混入水分，它就能存放非常久，几乎不会腐败。",
+          extra: "考古学家曾在埃及古墓中发现数千年前的蜂蜜，保存状态仍令人惊叹。结晶不是变质，隔温水加热就能恢复。",
+          colors: ["#d98206", "#ec5b29"]
+        },
+        {
+          id: 3, category: "人体奥秘", categoryIcon: "🫀", emoji: "🧠",
+          title: "大脑约有860亿个神经元",
+          teaser: "你的脑袋里，藏着一片「银河」",
+          detail: "人脑平均包含约860亿个神经元，它们通过突触形成庞大网络。你每一次走神、灵感和回忆，都伴随着海量电信号与化学信号的协作。",
+          extra: "这个数量与银河系恒星数量的常见估计处在同一数量级。更惊人的是，神经元之间的连接数远超神经元本身。",
+          colors: ["#d94b9b", "#7957d9"]
+        },
+        {
+          id: 4, category: "宇宙漫游", categoryIcon: "🪐", emoji: "🌙",
+          title: "月球正在远离地球",
+          teaser: "每年离开一点点，和指甲长得差不多快",
+          detail: "激光测距显示，月球平均每年远离地球约3.8厘米。潮汐摩擦会把地球自转的一部分角动量转移给月球，地球自转也随之非常缓慢地变慢。",
+          extra: "数亿年前的地球上，一天比现在短。珊瑚和贝壳化石中的生长纹，为这种变化留下了天然记录。",
+          colors: ["#535bd6", "#078cae"]
+        },
+        {
+          id: 5, category: "动物世界", categoryIcon: "🐾", emoji: "🐌",
+          title: "蜗牛可以休眠数年",
+          teaser: "环境不合适？先睡上三年再说",
+          detail: "遇到干旱或严寒时，一些蜗牛会进入休眠状态，并用黏液膜封住壳口，减少水分流失。在极端环境下，这种休眠可能持续数年，常见说法是长达三年。",
+          extra: "休眠不是普通睡觉，而是新陈代谢大幅降低的「节能模式」。等环境湿润适宜，它们才会重新活动。",
+          colors: ["#0e9f78", "#6a9d1c"]
+        },
+        {
+          id: 6, category: "食物真相", categoryIcon: "🍽️", emoji: "🍌",
+          title: "香蕉是浆果，草莓却不是",
+          teaser: "水果的分类，完全不按名字来",
+          detail: "植物学里的浆果通常由单个子房发育而来，果皮内包裹着种子。香蕉符合这一定义；草莓可食用的红色主体是膨大的花托，因此不算植物学浆果。",
+          extra: "草莓表面的小颗粒才是真正的小果实。西瓜、黄瓜和番茄在植物学上，也都能归入浆果类。",
+          colors: ["#e14b62", "#d97908"]
+        },
+        {
+          id: 7, category: "人体奥秘", categoryIcon: "🫀", emoji: "👃",
+          title: "两个鼻孔轮流当主力",
+          teaser: "此刻呼吸的你，也有一个鼻孔在摸鱼",
+          detail: "多数人存在「鼻周期」：一侧鼻腔黏膜轻微充血、气流减少，另一侧承担更多呼吸，几小时后两侧交换。这个过程通常不易察觉，却有助于嗅觉和鼻腔保护。",
+          extra: "不同气味分子需要不同时间与嗅觉受体作用，两侧气流差异可能让大脑获得更完整的气味信息。",
+          colors: ["#079bb0", "#346ed1"]
+        },
+        {
+          id: 8, category: "宇宙漫游", categoryIcon: "🪐", emoji: "♀️",
+          title: "金星的一天比一年还长",
+          teaser: "在这颗星球过生日，要特别耐心",
+          detail: "金星自转一周约需243个地球日，而绕太阳公转一周约需225个地球日，所以它的一「日」比一「年」还长。它的自转方向还与多数行星相反。",
+          extra: "在金星上，太阳会从西边升起、东边落下。由于自转与公转共同作用，两次日出之间又约为117个地球日。",
+          colors: ["#d65b17", "#ae7510"]
+        },
+        {
+          id: 9, category: "动物世界", categoryIcon: "🐾", emoji: "🦈",
+          title: "鲨鱼比树木更早出现",
+          teaser: "海洋里的老前辈，资历远超森林",
+          detail: "早期鲨鱼类动物约在4亿多年前就已出现，而真正意义上的树木大约从3.8亿年前才开始发展。鲨鱼见证了森林扩张、恐龙兴衰和多次生物大灭绝。",
+          extra: "鲨鱼骨骼主要由软骨构成，完整化石很少。今天看到的大量鲨鱼化石，往往是更容易保存的牙齿。",
+          colors: ["#087fb5", "#078e84"]
+        },
+        {
+          id: 10, category: "历史回声", categoryIcon: "🏺", emoji: "🏛️",
+          title: "牛津大学比阿兹特克帝国还早",
+          teaser: "当帝国尚未建立，课堂已经开了几百年",
+          detail: "牛津在1096年前后已有教学活动，到12世纪末已发展为重要学府。阿兹特克帝国则通常以1428年三方联盟建立为起点，两者相差三百多年。",
+          extra: "同一时期看似遥远，其实常有时间交叠。把世界史事件放在同一条时间线上，经常会出现意外的「同框」。",
+          colors: ["#9345c4", "#4e5acb"]
+        },
+        {
+          id: 11, category: "科技简史", categoryIcon: "⚙️", emoji: "🖱️",
+          title: "第一只鼠标是木头做的",
+          teaser: "今天桌上的小鼠标，祖先像个木盒子",
+          detail: "道格拉斯·恩格尔巴特团队在20世纪60年代研制出早期鼠标原型。它用木质外壳包裹两个互相垂直的滚轮，移动时滚轮把位移转换成电信号。",
+          extra: "「鼠标」这个昵称来自身后拖着的一根线，看起来就像尾巴。早期的它只有一个按钮，外形与今天差别很大。",
+          colors: ["#b96816", "#db9130"]
+        },
+        {
+          id: 12, category: "科技简史", categoryIcon: "⚙️", emoji: "👩‍💻",
+          title: "第一位程序员没见过现代电脑",
+          teaser: "代码的诞生，比电子计算机早了一百年",
+          detail: "19世纪40年代，阿达·洛芙莱斯为巴贝奇分析机设计了一套计算伯努利数的步骤，被许多人视为首个公开发表的计算机算法，因此她常被称为第一位程序员。",
+          extra: "她还超前地设想：机器未来也许能处理文字、图像和音乐，而不只是做数学计算。",
+          colors: ["#d6428f", "#c34455"]
+        },
+        {
+          id: 13, category: "动物世界", categoryIcon: "🐾", emoji: "🦦",
+          title: "海獭睡觉会手拉手",
+          teaser: "漂在海面上，也别忘了牵住伙伴",
+          detail: "海獭常浮在水面休息，有时会互相握住爪子，或把身体缠在海藻中，以减小随水流漂散的可能。母子之间也常保持紧密接触。",
+          extra: "海獭还是「工具使用者」：会把石块放在肚皮上当砧板，敲开贝类，还可能把喜欢的石头藏在腋下皮褶里。",
+          colors: ["#078fa9", "#2865c3"]
+        },
+        {
+          id: 14, category: "人体奥秘", categoryIcon: "🫀", emoji: "👶",
+          title: "婴儿出生时骨头更多",
+          teaser: "长大以后，骨头数量反而会变少",
+          detail: "婴儿出生时通常有约270块骨性结构，成人通常有206块。成长中，一些分离的骨头会逐渐融合，例如颅骨、骶骨等，因此总数慢慢减少。",
+          extra: "婴儿部分骨骼含有较多软骨，既能适应出生过程，也为快速生长留下空间。成人206块也只是常见数量，个体可能略有差异。",
+          colors: ["#d6579a", "#8d51c4"]
+        },
+        {
+          id: 15, category: "宇宙漫游", categoryIcon: "🪐", emoji: "☀️",
+          title: "太阳占太阳系质量的99.8%",
+          teaser: "八大行星加起来，也只是个零头",
+          detail: "太阳集中了太阳系约99.86%的质量，木星等行星、卫星、小行星和彗星共享剩余的一小部分。太阳强大的引力也因此主导着整个太阳系。",
+          extra: "太阳每秒约有数百万吨物质通过核聚变转化为能量。你感受到的阳光，出发了约8分20秒才抵达地球。",
+          colors: ["#db8510", "#d94b31"]
+        },
+        {
+          id: 16, category: "食物真相", categoryIcon: "🍽️", emoji: "🍫",
+          title: "可可豆曾被当作货币",
+          teaser: "在古代中美洲，巧克力真的能「花掉」",
+          detail: "在玛雅和阿兹特克等中美洲文明中，可可十分珍贵。可可豆不仅用于制作苦味饮品，也曾承担交换媒介的功能，可用于购买物品或支付贡赋。",
+          extra: "当时巧克力饮品常加入辣椒、香草或玉米，并不加糖。欧洲殖民者接触后，甜味巧克力才逐渐流行。",
+          colors: ["#995322", "#d17b22"]
+        },
+        {
+          id: 17, category: "历史回声", categoryIcon: "🏺", emoji: "🗼",
+          title: "埃菲尔铁塔夏天会长高",
+          teaser: "一座铁塔，也会随季节「伸懒腰」",
+          detail: "钢铁受热会膨胀，气温升高时，埃菲尔铁塔的尺寸会略微增加。高温下塔高变化可达到约10至15厘米，天气转冷后又会恢复。",
+          extra: "日照不均还会让塔身产生微小偏移。工程师设计大型金属建筑与桥梁时，都必须为热胀冷缩预留空间。",
+          colors: ["#078f82", "#087fa9"]
+        },
+        {
+          id: 18, category: "科技简史", categoryIcon: "⚙️", emoji: "🚀",
+          title: "登月电脑的内存只有几KB",
+          teaser: "把你送上月球的电脑，装不下一首现代歌曲",
+          detail: "阿波罗导航计算机只有几千字节量级的可擦写内存和数十KB的固定存储，却承担导航、制导与控制任务。它依靠高度优化的软件和团队配合完成登月。",
+          extra: "固定存储中的程序由工人用磁芯和导线编织，因而被称为「核心绳索存储器」，像一只只实体化的程序。",
+          colors: ["#4c5bd0", "#7345bb"]
+        },
+        {
+          id: 19, category: "动物世界", categoryIcon: "🐾", emoji: "💩",
+          title: "袋熊的便便是方块形",
+          teaser: "大自然里，居然藏着一位「方块制造师」",
+          detail: "袋熊的肠道不同区域弹性与厚度不同，消化物在缓慢移动、脱水和收缩过程中被塑成有棱角的立方体。这种形状也与它们标记领地的方式有关。",
+          extra: "方块便便不容易从岩石或木头上滚走，有助于保留气味标记。这项奇特机制还曾获得搞笑诺贝尔奖。",
+          colors: ["#5c991c", "#159052"]
+        },
+        {
+          id: 20, category: "历史回声", categoryIcon: "🏺", emoji: "🏓",
+          title: "乒乓球曾是餐桌游戏",
+          teaser: "书本当球网，香槟塞也能当球",
+          detail: "19世纪末，英国上流社会流行一种饭后室内游戏：在餐桌上用书本隔出球网，用书本或纸板击球。它逐渐演变成现代乒乓球，并出现多种早期名称。",
+          extra: "早期用球包括软木塞和橡胶球，后来空心赛璐珞球流行。「Ping-Pong」这个名称，正是在模仿击球声。",
+          colors: ["#db631d", "#c94383"]
+        }
+      ];
+
+      const milestones = [
+        {
+          target: 5, title: "好奇心宝宝", emoji: "🐣",
+          description: "5 条冷知识已点亮！你已经开始用不一样的角度看世界啦。"
+        },
+        {
+          target: 10, title: "知识小达人", emoji: "🎓",
+          description: "完成半程探索！你的冷知识储备，已经悄悄超过身边不少人。"
+        },
+        {
+          target: 20, title: "行走的百科全书", emoji: "📚",
+          description: "20 条全部收集完成！从今天起，你就是朋友聚会里的冷知识担当。"
+        }
+      ];
+
+      const TOTAL = facts.length;
+      const STORAGE_KEY = "curiosity-explorer-v1";
+      const $ = (id) => document.getElementById(id);
+      const screens = {
+        cover: $("coverScreen"),
+        explore: $("exploreScreen"),
+        achievements: $("achievementsScreen")
+      };
+
+      let currentIndex = 0;
+      let isFlipped = false;
+      let transitioning = false;
+      let achievementReturn = "explore";
+      let pointerStart = null;
+      let swipeHandled = false;
+      let toastTimer = null;
+      let lastFocusedElement = null;
+
+      function loadState() {
+        const empty = { explored: [], votes: {} };
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (!saved || !Array.isArray(saved.explored)) return empty;
+          const validIds = new Set(facts.map(fact => fact.id));
+          const explored = [...new Set(saved.explored)]
+            .filter(id => Number.isInteger(id) && validIds.has(id));
+          const votes = {};
+          explored.forEach(id => {
+            if (saved.votes && (saved.votes[id] === "new" || saved.votes[id] === "knew")) {
+              votes[id] = saved.votes[id];
+            }
+          });
+          return { explored, votes };
+        } catch (error) {
+          return empty;
+        }
+      }
+
+      let state = loadState();
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+          // 隐私模式或存储空间不足时，当前会话仍可正常探索。
+        }
+      }
+
+      function count() {
+        return state.explored.length;
+      }
+
+      function currentMilestone() {
+        return milestones.filter(item => count() >= item.target).at(-1) || null;
+      }
+
+      function nextMilestone() {
+        return milestones.find(item => count() < item.target) || null;
+      }
+
+      function showScreen(name) {
+        Object.entries(screens).forEach(([key, screen]) => {
+          screen.hidden = key !== name;
+        });
+        window.scrollTo(0, 0);
+      }
+
+      function showCover() {
+        if (transitioning) return;
+        updateCover();
+        showScreen("cover");
+      }
+
+      function updateCover() {
+        const exploredCount = count();
+        const hasProgress = exploredCount > 0;
+        $("coverProgress").hidden = !hasProgress;
+        $("resetButton").hidden = !hasProgress;
+        $("coverProgressText").textContent = `上次探索到 ${exploredCount} / ${TOTAL}`;
+        if (exploredCount === TOTAL) {
+          $("startButtonLabel").textContent = "查看我的成就";
+        } else if (hasProgress) {
+          $("startButtonLabel").textContent = `继续探索 · ${exploredCount}/${TOTAL}`;
+        } else {
+          $("startButtonLabel").textContent = "开始探索";
+        }
+      }
+
+      function updateProgressUI() {
+        const exploredCount = count();
+        const percentage = exploredCount / TOTAL * 100;
+        $("progressText").textContent = `已探索 ${exploredCount} / ${TOTAL}`;
+        $("progressFill").style.width = `${percentage}%`;
+        $("mainProgressBar").setAttribute("aria-valuenow", String(exploredCount));
+
+        const upcoming = nextMilestone();
+        $("nextAchievement").textContent = upcoming
+          ? `再探索 ${upcoming.target - exploredCount} 条，解锁「${upcoming.title}」`
+          : "全部称号已解锁 🎉";
+        updateCover();
+      }
+
+      function findNextUnexplored(afterIndex = -1) {
+        for (let step = 1; step <= TOTAL; step++) {
+          const index = (afterIndex + step + TOTAL) % TOTAL;
+          if (!state.explored.includes(facts[index].id)) return index;
+        }
+        return -1;
+      }
+
+      function setCardGradient(fact) {
+        [ $("cardFront"), $("cardBack") ].forEach(card => {
+          card.style.setProperty("--card-start", fact.colors[0]);
+          card.style.setProperty("--card-end", fact.colors[1]);
+        });
+      }
+
+      function updateFlipAccessibility() {
+        $("cardFront").setAttribute("aria-hidden", String(isFlipped));
+        $("cardBack").setAttribute("aria-hidden", String(!isFlipped));
+        $("flipCard").setAttribute("aria-pressed", String(isFlipped));
+      }
+
+      function applyFact() {
+        const fact = facts[currentIndex];
+        isFlipped = false;
+        $("cardInner").style.transition = "none";
+        $("flipCard").classList.remove("is-flipped");
+
+        $("factCategory").textContent = `${fact.categoryIcon} ${fact.category}`;
+        $("backCategory").textContent = `${fact.categoryIcon} ${fact.category}`;
+        $("factNumber").textContent = `${String(currentIndex + 1).padStart(2, "0")} / ${TOTAL}`;
+        $("factEmoji").textContent = fact.emoji;
+        $("factTitle").textContent = fact.title;
+        $("factTeaser").textContent = fact.teaser;
+        $("backTitle").textContent = fact.title;
+        $("factDetail").textContent = fact.detail;
+        $("factExtra").textContent = fact.extra;
+        $("flipCard").setAttribute("aria-label", `${fact.title}。点击或左右滑动查看详细解释`);
+        setCardGradient(fact);
+        updateFlipAccessibility();
+
+        void $("cardInner").offsetWidth;
+        $("cardInner").style.transition = "";
+      }
+
+      function showExplore(startFromBeginning = false) {
+        if (count() === TOTAL) {
+          achievementReturn = "cover";
+          showAchievements();
+          return;
+        }
+        if (startFromBeginning || state.explored.includes(facts[currentIndex].id)) {
+          currentIndex = findNextUnexplored(startFromBeginning ? -1 : currentIndex);
+        }
+        showScreen("explore");
+        applyFact();
+        updateProgressUI();
+      }
+
+      function toggleFlip() {
+        if (transitioning || screens.explore.hidden) return;
+        isFlipped = !isFlipped;
+        $("flipCard").classList.toggle("is-flipped", isFlipped);
+        updateFlipAccessibility();
+      }
+
+      function setVoteButtonsDisabled(disabled) {
+        $("mindBlownButton").disabled = disabled;
+        $("alreadyKnewButton").disabled = disabled;
+      }
+
+      function showVoteBurst(type) {
+        const burst = $("voteBurst");
+        burst.textContent = type === "new" ? "🤯 新知识 +1" : "😎 不愧是你";
+        burst.classList.remove("show");
+        void burst.offsetWidth;
+        burst.classList.add("show");
+      }
+
+      function showToast(message) {
+        const toast = $("toast");
+        clearTimeout(toastTimer);
+        toast.classList.remove("show");
+        toast.textContent = message;
+        void toast.offsetWidth;
+        toast.classList.add("show");
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2250);
+      }
+
+      function handleVote(type) {
+        if (transitioning) return;
+        const fact = facts[currentIndex];
+        if (state.explored.includes(fact.id)) return;
+
+        transitioning = true;
+        setVoteButtonsDisabled(true);
+        state.explored.push(fact.id);
+        state.votes[fact.id] = type;
+        saveState();
+        updateProgressUI();
+        showVoteBurst(type);
+        showToast(type === "new" ? "新知识 +1，已收入你的好奇心" : "已标记为「早就知道」");
+
+        const unlocked = milestones.find(item => count() === item.target);
+
+        setTimeout(() => $("cardStage").classList.add("slide-out"), 300);
+
+        setTimeout(() => {
+          $("cardStage").classList.remove("slide-out");
+          const nextIndex = findNextUnexplored(currentIndex);
+          if (nextIndex === -1) {
+            achievementReturn = "cover";
+            showAchievements();
+          } else {
+            currentIndex = nextIndex;
+            applyFact();
+            $("cardStage").classList.add("slide-in");
+          }
+        }, 560);
+
+        setTimeout(() => {
+          $("cardStage").classList.remove("slide-in");
+          transitioning = false;
+          setVoteButtonsDisabled(false);
+          if (unlocked) openCelebration(unlocked);
+        }, 900);
+      }
+
+      function renderMilestones() {
+        const exploredCount = count();
+        $("milestoneList").innerHTML = milestones.map(item => {
+          const unlocked = exploredCount >= item.target;
+          const remaining = Math.max(0, item.target - exploredCount);
+          const itemProgress = Math.min(100, exploredCount / item.target * 100);
+          return `
+            <article class="milestone-card ${unlocked ? "unlocked" : "locked"}">
+              <div class="milestone-icon">${unlocked ? item.emoji : "🔒"}</div>
+              <div>
+                <div class="milestone-title-row"><h4>${item.title}</h4><span>${unlocked ? "已解锁" : `${item.target} 条解锁`}</span></div>
+                <p>${unlocked ? "称号已收入你的好奇心收藏馆" : `再探索 ${remaining} 条冷知识即可点亮`}</p>
+                <div class="progress-track"><div class="progress-fill" style="width:${itemProgress}%"></div></div>
+              </div>
+            </article>`;
+        }).join("");
+      }
+
+      function showAchievements() {
+        const exploredCount = count();
+        const percentage = exploredCount / TOTAL * 100;
+        const latest = currentMilestone();
+        const newCount = Object.values(state.votes).filter(value => value === "new").length;
+        const knewCount = Object.values(state.votes).filter(value => value === "knew").length;
+
+        $("achievementEmoji").textContent = latest ? latest.emoji : "🌱";
+        $("currentTitle").textContent = latest ? latest.title : "好奇心正在发芽";
+        $("achievementSummary").textContent = exploredCount === TOTAL
+          ? "20 条冷知识全部点亮，行走的百科全书就是你！"
+          : exploredCount > 0
+            ? `已收集 ${exploredCount} 条冷知识，下一份惊喜还在后面。`
+            : "每一条冷知识，都是看世界的新角度。";
+        $("collectionCount").textContent = `${exploredCount} / ${TOTAL}`;
+        $("collectionProgressFill").style.width = `${percentage}%`;
+        $("collectionProgressBar").setAttribute("aria-valuenow", String(exploredCount));
+        $("newKnowledgeCount").textContent = String(newCount);
+        $("alreadyKnewCount").textContent = String(knewCount);
+        $("continueButtonLabel").textContent = exploredCount === TOTAL ? "重新探索一轮" : "继续探索";
+        renderMilestones();
+        showScreen("achievements");
+      }
+
+      function createConfetti() {
+        const container = $("confetti");
+        const colors = ["#8063fa", "#ffcb57", "#2acb88", "#f05a9d", "#57a2ff", "#ff805c"];
+        container.innerHTML = "";
+        for (let i = 0; i < 34; i++) {
+          const piece = document.createElement("span");
+          piece.className = "confetti-piece";
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.background = colors[i % colors.length];
+          piece.style.setProperty("--duration", `${2.2 + Math.random() * 1.8}s`);
+          piece.style.setProperty("--delay", `${Math.random() * .65}s`);
+          piece.style.setProperty("--drift", `${-80 + Math.random() * 160}px`);
+          piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+          if (i % 3 === 0) piece.style.borderRadius = "50%";
+          container.appendChild(piece);
+        }
+      }
+
+      function openCelebration(milestone) {
+        lastFocusedElement = document.activeElement;
+        $("celebrationEmoji").textContent = milestone.emoji;
+        $("celebrationTitle").textContent = milestone.title;
+        $("celebrationDescription").textContent = milestone.description;
+        $("celebrationCount").textContent = String(milestone.target);
+        $("celebrationButtonLabel").textContent = milestone.target === TOTAL ? "收下称号，看看成就" : "继续探索";
+        createConfetti();
+        $("celebrationModal").hidden = false;
+        document.body.classList.add("modal-open");
+        setTimeout(() => $("celebrationButton").focus(), 80);
+      }
+
+      function closeCelebration() {
+        $("celebrationModal").hidden = true;
+        document.body.classList.remove("modal-open");
+        $("confetti").innerHTML = "";
+        if (lastFocusedElement && document.contains(lastFocusedElement)) {
+          lastFocusedElement.focus({ preventScroll: true });
+        }
+      }
+
+      function resetProgress() {
+        state = { explored: [], votes: {} };
+        currentIndex = 0;
+        isFlipped = false;
+        saveState();
+        updateProgressUI();
+        applyFact();
+      }
+
+      $("startButton").addEventListener("click", () => {
+        if (count() === TOTAL) {
+          achievementReturn = "cover";
+          showAchievements();
+        } else {
+          showExplore(true);
+        }
+      });
+
+      $("resetButton").addEventListener("click", () => {
+        if (!window.confirm("确定要清空全部探索进度和称号吗？")) return;
+        resetProgress();
+        showCover();
+        showToast("记录已清空，重新出发吧");
+      });
+
+      $("exploreBackButton").addEventListener("click", showCover);
+      $("achievementButton").addEventListener("click", () => {
+        if (transitioning) return;
+        achievementReturn = "explore";
+        showAchievements();
+      });
+
+      $("achievementBackButton").addEventListener("click", () => {
+        if (achievementReturn === "explore" && count() < TOTAL) showExplore();
+        else showCover();
+      });
+      $("achievementHomeButton").addEventListener("click", showCover);
+
+      $("continueButton").addEventListener("click", () => {
+        if (count() === TOTAL) {
+          if (!window.confirm("重新开始会清空本轮投票和称号，确定继续吗？")) return;
+          resetProgress();
+          showExplore(true);
+        } else {
+          showExplore();
+        }
+      });
+
+      $("mindBlownButton").addEventListener("click", () => handleVote("new"));
+      $("alreadyKnewButton").addEventListener("click", () => handleVote("knew"));
+      $("celebrationButton").addEventListener("click", closeCelebration);
+
+      $("flipCard").addEventListener("click", () => {
+        if (swipeHandled) {
+          swipeHandled = false;
+          return;
+        }
+        toggleFlip();
+      });
+
+      $("flipCard").addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleFlip();
+        }
+      });
+
+      $("flipCard").addEventListener("pointerdown", event => {
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+        pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+        swipeHandled = false;
+      });
+
+      $("flipCard").addEventListener("pointerup", event => {
+        if (!pointerStart || pointerStart.id !== event.pointerId) return;
+        const dx = event.clientX - pointerStart.x;
+        const dy = event.clientY - pointerStart.y;
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+          swipeHandled = true;
+          toggleFlip();
+        }
+        pointerStart = null;
+      });
+
+      $("flipCard").addEventListener("pointercancel", () => {
+        pointerStart = null;
+        swipeHandled = false;
+      });
+
+      $("celebrationModal").addEventListener("click", event => {
+        if (event.target === $("celebrationModal")) closeCelebration();
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !$("celebrationModal").hidden) closeCelebration();
+      });
+
+      updateProgressUI();
+      applyFact();
+      updateCover();
+    })();
+  </script>
+</body>
+</html>

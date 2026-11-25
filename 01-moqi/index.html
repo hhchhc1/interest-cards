@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>默契大挑战｜五题鉴定友情含金量</title>
+  <style>
+    :root {
+      --bg-start: #1a1a2e;
+      --bg-end: #16213e;
+      --pink: #fe2c55;
+      --pink-soft: #ff6b96;
+      --cyan: #25f4ee;
+      --purple: #8b5cf6;
+      --text: #f8f8fc;
+      --muted: #a7a9bd;
+      --line: rgba(255, 255, 255, 0.11);
+      --glass: rgba(255, 255, 255, 0.07);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #101223;
+    }
+
+    body {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 15%, rgba(254, 44, 85, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 85%, rgba(37, 244, 238, 0.09), transparent 30%),
+        #101223;
+      overflow: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 3px;
+    }
+
+    button:disabled {
+      cursor: default;
+    }
+
+    .svg-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    .app {
+      position: relative;
+      width: min(100%, 430px);
+      height: 100dvh;
+      max-height: 900px;
+      min-height: 600px;
+      isolation: isolate;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 5% 6%, rgba(254, 44, 85, 0.18), transparent 28%),
+        radial-gradient(circle at 105% 62%, rgba(37, 244, 238, 0.1), transparent 34%),
+        linear-gradient(155deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+    }
+
+    .app::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.34;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.2) 0 0.6px, transparent 0.9px),
+        radial-gradient(circle at 80% 60%, rgba(255, 255, 255, 0.16) 0 0.6px, transparent 0.9px);
+      background-size: 22px 22px, 31px 31px;
+    }
+
+    .app::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+    }
+
+    .ambient {
+      position: absolute;
+      z-index: -1;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      filter: blur(75px);
+      opacity: 0.15;
+      pointer-events: none;
+      animation: ambientFloat 9s ease-in-out infinite alternate;
+    }
+
+    .ambient-pink {
+      top: 17%;
+      right: -125px;
+      background: var(--pink);
+    }
+
+    .ambient-cyan {
+      bottom: -100px;
+      left: -110px;
+      background: var(--cyan);
+      animation-delay: -4s;
+    }
+
+    #stage {
+      position: absolute;
+      inset: 0;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      padding: max(22px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
+    }
+
+    .screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    .screen.active {
+      display: flex;
+      z-index: 2;
+      animation: screenIn 0.42s var(--ease) both;
+    }
+
+    .screen.leaving {
+      display: flex;
+      z-index: 1;
+      pointer-events: none;
+      animation: screenOut 0.22s ease both;
+    }
+
+    .topbar {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex: 0 0 auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 27px;
+      height: 27px;
+      flex: 0 0 auto;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 17px;
+      height: 17px;
+      top: 5px;
+      border: 2px solid;
+      border-radius: 6px 9px 6px 9px;
+      transform: rotate(45deg);
+    }
+
+    .brand-mark::before {
+      left: 2px;
+      border-color: var(--cyan);
+    }
+
+    .brand-mark::after {
+      right: 2px;
+      border-color: var(--pink);
+    }
+
+    .brand-dim {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      border-radius: 13px;
+      color: #d9daea;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--line);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .icon-button:hover {
+      transform: translateY(-2px);
+      color: var(--cyan);
+    }
+
+    .icon-button:active {
+      transform: scale(0.93);
+    }
+
+    .text-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 12px;
+      color: #d9daea;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .text-button .icon {
+      width: 15px;
+      height: 15px;
+    }
+
+    .text-button:hover {
+      transform: translateY(-2px);
+      color: var(--cyan);
+    }
+
+    .text-button:active {
+      transform: scale(0.96);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      gap: 7px;
+      padding: 7px 11px;
+      border: 1px solid rgba(37, 244, 238, 0.2);
+      border-radius: 999px;
+      color: var(--cyan);
+      background: rgba(37, 244, 238, 0.06);
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .glass-card {
+      border: 1px solid var(--line);
+      border-radius: 25px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045));
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.23), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+    }
+
+    .primary-button,
+    .secondary-button {
+      width: 100%;
+      min-height: 54px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 20px;
+      border-radius: 17px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .primary-button {
+      color: #fff;
+      background: linear-gradient(115deg, #fe2c55, #ff4f83 58%, #9c4edd 130%);
+      box-shadow: 0 12px 30px rgba(254, 44, 85, 0.26), -2px 0 0 rgba(37, 244, 238, 0.5);
+    }
+
+    .primary-button::after {
+      content: "";
+      position: absolute;
+      top: -60%;
+      left: -30%;
+      width: 28%;
+      height: 220%;
+      opacity: 0;
+      transform: rotate(22deg) translateX(-80px);
+      background: rgba(255, 255, 255, 0.22);
+      animation: buttonShine 4.8s ease-in-out infinite;
+    }
+
+    .primary-button > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-3px);
+    }
+
+    .primary-button:active {
+      transform: scale(0.975);
+    }
+
+    .primary-button:disabled {
+      opacity: 0.45;
+      transform: none;
+    }
+
+    .secondary-button {
+      color: #ececf6;
+      background: rgba(255, 255, 255, 0.065);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .secondary-button:hover {
+      transform: translateY(-2px);
+      color: var(--cyan);
+      border-color: rgba(37, 244, 238, 0.35);
+    }
+
+    .secondary-button:active {
+      transform: scale(0.975);
+    }
+
+    .plain-button {
+      padding: 8px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .plain-button:hover {
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .plain-button:active {
+      transform: scale(0.96);
+    }
+
+    /* 欢迎页 */
+    .welcome-copy {
+      margin-top: 25px;
+    }
+
+    .welcome-copy h1 {
+      margin: 15px 0 9px;
+      font-size: clamp(40px, 11vw, 50px);
+      line-height: 1.08;
+      letter-spacing: -0.055em;
+      font-weight: 950;
+    }
+
+    .welcome-copy h1 .gradient-word {
+      color: transparent;
+      background: linear-gradient(100deg, #fff 5%, #ff8aaa 42%, var(--pink) 74%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: 3px 2px 0 rgba(37, 244, 238, 0.16);
+    }
+
+    .welcome-copy p {
+      margin: 0;
+      color: #b7b8ca;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .welcome-copy p strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .duo-stage {
+      position: relative;
+      height: 222px;
+      margin: 13px 0 5px;
+      flex: 0 0 auto;
+    }
+
+    .duo-stage::before {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 110px;
+      left: 50%;
+      top: 52px;
+      border: 1px dashed rgba(37, 244, 238, 0.27);
+      border-radius: 50%;
+      transform: translateX(-50%) rotate(-8deg);
+    }
+
+    .profile-card {
+      position: absolute;
+      top: 39px;
+      width: 126px;
+      height: 145px;
+      padding: 16px 12px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 25px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .profile-you {
+      left: 16px;
+      transform: rotate(-8deg);
+      animation: cardFloatLeft 4.6s ease-in-out infinite;
+    }
+
+    .profile-ta {
+      right: 16px;
+      transform: rotate(8deg);
+      animation: cardFloatRight 4.6s ease-in-out infinite;
+    }
+
+    .profile-avatar {
+      width: 59px;
+      height: 59px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 10px;
+      border-radius: 21px;
+      font-size: 24px;
+      font-weight: 900;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .profile-you .profile-avatar {
+      background: linear-gradient(135deg, rgba(37, 244, 238, 0.85), rgba(44, 134, 208, 0.7));
+      box-shadow: 0 0 28px rgba(37, 244, 238, 0.17);
+    }
+
+    .profile-ta .profile-avatar {
+      background: linear-gradient(135deg, rgba(254, 44, 85, 0.9), rgba(156, 78, 221, 0.78));
+      box-shadow: 0 0 28px rgba(254, 44, 85, 0.18);
+    }
+
+    .profile-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .profile-card small {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .sync-badge {
+      position: absolute;
+      z-index: 3;
+      top: 88px;
+      left: 50%;
+      width: 88px;
+      height: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      border-radius: 21px;
+      background: #23223c;
+      box-shadow: -4px 0 0 rgba(37, 244, 238, 0.35), 4px 0 0 rgba(254, 44, 85, 0.35), 0 15px 30px rgba(0, 0, 0, 0.38);
+      transform: translateX(-50%) rotate(-2deg);
+      animation: syncPulse 2.8s ease-in-out infinite;
+    }
+
+    .sync-badge strong {
+      font-size: 19px;
+      line-height: 1.1;
+      letter-spacing: 0.03em;
+    }
+
+    .sync-badge small {
+      margin-top: 4px;
+      color: var(--cyan);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+    }
+
+    .mini-tag {
+      position: absolute;
+      z-index: 4;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(27, 28, 51, 0.88);
+      color: #d9daea;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      font-size: 9px;
+      animation: tagFloat 3.8s ease-in-out infinite;
+    }
+
+    .tag-one {
+      left: 2px;
+      top: 16px;
+      color: var(--cyan);
+      transform: rotate(-6deg);
+    }
+
+    .tag-two {
+      right: 0;
+      top: 15px;
+      color: #ff8aaa;
+      transform: rotate(6deg);
+      animation-delay: -1.3s;
+    }
+
+    .tag-three {
+      left: 50%;
+      bottom: 4px;
+      transform: translateX(-50%);
+      animation-delay: -2.1s;
+    }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 14px 5px;
+      margin-bottom: 17px;
+      border-radius: 19px;
+    }
+
+    .quick-stat {
+      text-align: center;
+      position: relative;
+    }
+
+    .quick-stat + .quick-stat::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 1px;
+      background: var(--line);
+    }
+
+    .quick-stat strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 17px;
+    }
+
+    .quick-stat span {
+      color: var(--muted);
+      font-size: 9px;
+    }
+
+    .welcome-actions {
+      display: grid;
+      gap: 11px;
+    }
+
+    .micro-copy {
+      margin: 13px 0 0;
+      text-align: center;
+      color: #74778f;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    /* 答题与出题 */
+    .quiz-header {
+      flex: 0 0 auto;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin: 25px 2px 11px;
+    }
+
+    .progress-meta .mode-label {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+
+    .progress-meta strong {
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-meta strong span {
+      color: var(--cyan);
+      font-size: 23px;
+      margin-right: 3px;
+    }
+
+    .progress-track {
+      height: 5px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-fill {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), #6d8cff 48%, var(--pink));
+      box-shadow: 0 0 14px rgba(37, 244, 238, 0.3);
+      transform: scaleX(0.2);
+      transform-origin: left center;
+      transition: transform 0.42s var(--ease);
+    }
+
+    .question-wrap {
+      flex: 1 0 auto;
+      padding-top: 27px;
+    }
+
+    .question-wrap.slide-in {
+      animation: questionIn 0.38s var(--ease) both;
+    }
+
+    .question-wrap.slide-out {
+      animation: questionOut 0.16s ease both;
+    }
+
+    .question-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .question-kicker .eyebrow {
+      color: #ff8aaa;
+      border-color: rgba(254, 44, 85, 0.2);
+      background: rgba(254, 44, 85, 0.06);
+    }
+
+    .challenge-chip {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+    }
+
+    .question-title {
+      min-height: 67px;
+      margin: 0 0 22px;
+      font-size: 25px;
+      line-height: 1.4;
+      letter-spacing: -0.035em;
+      font-weight: 850;
+    }
+
+    .options-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option-button {
+      width: 100%;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 11px 15px;
+      text-align: left;
+      border: 1px solid rgba(255, 255, 255, 0.105);
+      border-radius: 18px;
+      color: #e8e8f2;
+      background: rgba(255, 255, 255, 0.055);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .option-button:hover {
+      transform: translateX(4px);
+      border-color: rgba(37, 244, 238, 0.38);
+      background: rgba(37, 244, 238, 0.07);
+    }
+
+    .option-button:active {
+      transform: scale(0.98);
+    }
+
+    .option-letter {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      color: var(--cyan);
+      background: rgba(37, 244, 238, 0.075);
+      border: 1px solid rgba(37, 244, 238, 0.12);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .option-text {
+      flex: 1;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .option-check {
+      width: 21px;
+      height: 21px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    .option-check .icon {
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+    }
+
+    .option-button.selected {
+      transform: scale(1.015);
+      border-color: rgba(254, 44, 85, 0.62);
+      background: linear-gradient(105deg, rgba(254, 44, 85, 0.17), rgba(37, 244, 238, 0.07));
+      box-shadow: -2px 0 0 rgba(37, 244, 238, 0.55), 0 10px 25px rgba(254, 44, 85, 0.1);
+    }
+
+    .option-button.selected .option-letter {
+      color: #fff;
+      background: var(--pink);
+      border-color: var(--pink);
+    }
+
+    .option-button.selected .option-check {
+      opacity: 1;
+      color: #10242a;
+      background: var(--cyan);
+      border-color: var(--cyan);
+    }
+
+    .option-button.selected .option-check .icon {
+      opacity: 1;
+    }
+
+    .option-button.dimmed {
+      opacity: 0.34;
+    }
+
+    .quiz-tip {
+      margin: 19px 0 0;
+      text-align: center;
+      color: #82859c;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    /* 分享页 */
+    .share-screen .topbar,
+    .result-screen .topbar {
+      margin-bottom: 14px;
+    }
+
+    .share-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6px 0 12px;
+    }
+
+    .share-visual {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      display: grid;
+      place-items: center;
+      align-self: center;
+      margin-bottom: 24px;
+      border: 1px solid rgba(37, 244, 238, 0.24);
+      border-radius: 33px;
+      color: var(--cyan);
+      background: linear-gradient(135deg, rgba(37, 244, 238, 0.13), rgba(254, 44, 85, 0.1));
+      box-shadow: -4px 3px 0 rgba(254, 44, 85, 0.35), 0 0 40px rgba(37, 244, 238, 0.1);
+      transform: rotate(-6deg);
+      animation: shareFloat 3.6s ease-in-out infinite;
+    }
+
+    .share-visual .icon {
+      width: 44px;
+      height: 44px;
+      stroke-width: 1.4;
+    }
+
+    .share-visual::after {
+      content: "";
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      right: -6px;
+      top: -5px;
+      border-radius: 5px;
+      background: var(--pink);
+      box-shadow: 0 0 17px rgba(254, 44, 85, 0.65);
+      transform: rotate(20deg);
+    }
+
+    .share-content h2,
+    .code-card h2 {
+      margin: 0 0 10px;
+      text-align: center;
+      font-size: 27px;
+      line-height: 1.35;
+      letter-spacing: -0.035em;
+    }
+
+    .share-content > p,
+    .code-card > p {
+      margin: 0 auto 24px;
+      max-width: 290px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .code-panel {
+      padding: 20px 14px 17px;
+      text-align: center;
+    }
+
+    .code-panel-label {
+      display: block;
+      margin-bottom: 13px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+    }
+
+    .share-code {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      direction: ltr;
+    }
+
+    .code-char {
+      width: 40px;
+      height: 51px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(37, 244, 238, 0.2);
+      border-radius: 12px;
+      color: #fff;
+      background: rgba(8, 16, 35, 0.45);
+      box-shadow: inset 0 -2px 0 rgba(37, 244, 238, 0.13);
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 2px 0 0 rgba(254, 44, 85, 0.4);
+      animation: codePop 0.42s var(--ease) both;
+    }
+
+    .code-char:nth-child(2) { animation-delay: 0.04s; }
+    .code-char:nth-child(3) { animation-delay: 0.08s; }
+    .code-char:nth-child(4) { animation-delay: 0.12s; }
+    .code-char:nth-child(5) { animation-delay: 0.16s; }
+    .code-char:nth-child(6) { animation-delay: 0.2s; }
+
+    .code-note {
+      margin: 13px 0 0;
+      color: #7f829a;
+      font-size: 10px;
+    }
+
+    .share-actions {
+      display: grid;
+      gap: 11px;
+      margin-top: 19px;
+    }
+
+    /* 分享码入口 */
+    .code-screen .topbar {
+      margin-bottom: 25px;
+    }
+
+    .code-card {
+      margin: auto 0;
+      padding: 28px 21px 23px;
+    }
+
+    .code-card .eyebrow {
+      margin: 0 auto 18px;
+      display: flex;
+      width: fit-content;
+    }
+
+    .code-icon {
+      width: 62px;
+      height: 62px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      border-radius: 22px;
+      color: var(--pink-soft);
+      background: rgba(254, 44, 85, 0.1);
+      border: 1px solid rgba(254, 44, 85, 0.18);
+      transform: rotate(6deg);
+    }
+
+    .code-icon .icon {
+      width: 28px;
+      height: 28px;
+    }
+
+    .field-label {
+      display: block;
+      margin: 0 0 9px 2px;
+      color: #c6c7d6;
+      font-size: 11px;
+      text-align: left;
+    }
+
+    .field-shell {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .code-input {
+      width: 100%;
+      height: 65px;
+      padding: 0 17px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 17px;
+      color: #fff;
+      caret-color: var(--cyan);
+      background: rgba(5, 11, 28, 0.38);
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 25px;
+      font-weight: 850;
+      letter-spacing: 0.38em;
+      text-indent: 0.38em;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .code-input::placeholder {
+      color: #5f637c;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-indent: 0;
+    }
+
+    .code-input:focus {
+      border-color: rgba(37, 244, 238, 0.5);
+      background: rgba(37, 244, 238, 0.045);
+    }
+
+    .field-shell.error {
+      animation: fieldShake 0.32s ease;
+    }
+
+    .field-shell.error .code-input {
+      border-color: var(--pink);
+    }
+
+    .form-error {
+      min-height: 20px;
+      margin: 0 0 7px;
+      color: #ff8aaa;
+      text-align: left;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .code-card .primary-button {
+      margin-top: 2px;
+    }
+
+    .demo-note {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-top: 17px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: #7f8298;
+      font-size: 10px;
+      line-height: 1.65;
+      text-align: left;
+    }
+
+    .demo-dot {
+      width: 6px;
+      height: 6px;
+      flex: 0 0 auto;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px rgba(37, 244, 238, 0.5);
+    }
+
+    /* 结果页 */
+    .result-screen {
+      padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+
+    .result-content {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding: 3px 0 5px;
+    }
+
+    .result-content .eyebrow {
+      align-self: center;
+      margin-bottom: 11px;
+    }
+
+    .result-overline {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    .score-wrap {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin: 4px 0 0;
+      line-height: 1;
+      animation: scoreReveal 0.7s var(--ease) both;
+    }
+
+    .score-number {
+      color: transparent;
+      background: linear-gradient(160deg, #fff 8%, #8ffffa 38%, var(--cyan) 56%, #ff7da1 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      font-size: 112px;
+      font-weight: 950;
+      letter-spacing: -0.095em;
+      font-variant-numeric: tabular-nums;
+      filter: drop-shadow(3px 3px 0 rgba(254, 44, 85, 0.24));
+    }
+
+    .score-percent {
+      margin: 21px 0 0 9px;
+      color: var(--pink-soft);
+      font-size: 29px;
+      font-weight: 900;
+      text-shadow: 2px 0 0 rgba(37, 244, 238, 0.25);
+    }
+
+    .result-title {
+      margin: 0 0 9px;
+      font-size: 31px;
+      line-height: 1.25;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      animation: resultTextIn 0.5s 0.16s var(--ease) both;
+    }
+
+    .result-description {
+      max-width: 295px;
+      min-height: 44px;
+      margin: 0 auto;
+      color: #b9bbcd;
+      font-size: 13px;
+      line-height: 1.75;
+      animation: resultTextIn 0.5s 0.24s var(--ease) both;
+    }
+
+    .match-summary {
+      margin: 21px 0 18px;
+      padding: 16px 17px;
+      animation: resultTextIn 0.5s 0.3s var(--ease) both;
+    }
+
+    .match-summary > span {
+      display: block;
+      margin-bottom: 12px;
+      color: #d6d7e3;
+      font-size: 11px;
+    }
+
+    .match-dots {
+      display: flex;
+      justify-content: center;
+      gap: 13px;
+    }
+
+    .match-dot {
+      position: relative;
+      width: 33px;
+      height: 33px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      font-size: 15px;
+      font-weight: 900;
+      animation: dotPop 0.35s var(--ease) both;
+    }
+
+    .match-dot:nth-child(2) { animation-delay: 0.08s; }
+    .match-dot:nth-child(3) { animation-delay: 0.16s; }
+    .match-dot:nth-child(4) { animation-delay: 0.24s; }
+    .match-dot:nth-child(5) { animation-delay: 0.32s; }
+
+    .match-dot.match {
+      color: #092b2a;
+      background: var(--cyan);
+      box-shadow: 0 0 18px rgba(37, 244, 238, 0.16);
+    }
+
+    .match-dot.miss {
+      color: #ff9ab4;
+      background: rgba(254, 44, 85, 0.12);
+      border: 1px solid rgba(254, 44, 85, 0.24);
+    }
+
+    .result-actions {
+      display: grid;
+      gap: 10px;
+      animation: resultTextIn 0.5s 0.36s var(--ease) both;
+    }
+
+    .celebration {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti,
+    .star-particle {
+      position: absolute;
+      top: -24px;
+      left: var(--left);
+      display: block;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .confetti {
+      width: var(--size);
+      height: calc(var(--size) * 1.8);
+      border-radius: 2px;
+      background: var(--color);
+      animation: confettiFall var(--duration) var(--delay) ease-in infinite;
+    }
+
+    .star-particle {
+      width: var(--size);
+      height: var(--size);
+      background: var(--color);
+      clip-path: polygon(50% 0%, 61% 35%, 100% 38%, 69% 59%, 80% 100%, 50% 75%, 20% 100%, 31% 59%, 0% 38%, 39% 35%);
+      animation: starFall var(--duration) var(--delay) ease-in infinite;
+    }
+
+    /* 题目编辑 */
+    .modal {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: flex-end;
+      padding: 16px 12px max(12px, env(safe-area-inset-bottom));
+      background: rgba(5, 7, 20, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+
+    .modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .editor-panel {
+      width: 100%;
+      max-height: 91%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 27px;
+      transform: translateY(35px) scale(0.98);
+      opacity: 0;
+      transition: transform 0.32s var(--ease), opacity 0.25s ease;
+    }
+
+    .modal.open .editor-panel {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px 19px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .editor-header h3 {
+      margin: 0 0 4px;
+      font-size: 19px;
+    }
+
+    .editor-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .editor-body {
+      display: grid;
+      gap: 13px;
+      padding: 15px 17px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .edit-group {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: rgba(6, 12, 29, 0.25);
+    }
+
+    .edit-group-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 11px;
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .edit-group-title span:last-child {
+      color: #70748e;
+      font-size: 9px;
+      font-weight: 500;
+    }
+
+    .edit-input {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 11px;
+      color: #ededf5;
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .edit-input:focus {
+      border-color: rgba(37, 244, 238, 0.45);
+      background: rgba(37, 244, 238, 0.045);
+    }
+
+    .edit-question {
+      height: 43px;
+      padding: 0 12px;
+      margin-bottom: 9px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .edit-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .edit-option-wrap {
+      position: relative;
+    }
+
+    .edit-option-wrap span {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      color: var(--pink-soft);
+      font-size: 10px;
+      font-weight: 800;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .edit-option {
+      height: 39px;
+      padding: 0 9px 0 27px;
+    }
+
+    .editor-footer {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      padding: 14px 17px 17px;
+      border-top: 1px solid var(--line);
+      background: rgba(19, 24, 47, 0.7);
+    }
+
+    .editor-footer .secondary-button,
+    .editor-footer .primary-button {
+      min-height: 48px;
+      font-size: 13px;
+    }
+
+    .editor-footer .secondary-button {
+      padding: 0 14px;
+    }
+
+    .toast {
+      position: absolute;
+      z-index: 90;
+      left: 50%;
+      bottom: max(27px, env(safe-area-inset-bottom));
+      max-width: calc(100% - 44px);
+      padding: 11px 17px;
+      border: 1px solid rgba(37, 244, 238, 0.22);
+      border-radius: 999px;
+      color: #e9ffff;
+      background: rgba(15, 28, 45, 0.94);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: center;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 14px);
+      transition: transform 0.25s var(--ease), opacity 0.25s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* 仅使用 transform / opacity 的动效 */
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes screenOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-8px); }
+    }
+
+    @keyframes questionIn {
+      from { opacity: 0; transform: translateX(28px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes questionOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-24px); }
+    }
+
+    @keyframes ambientFloat {
+      from { transform: translate3d(0, -8px, 0) scale(0.95); opacity: 0.11; }
+      to { transform: translate3d(-20px, 25px, 0) scale(1.12); opacity: 0.2; }
+    }
+
+    @keyframes buttonShine {
+      0%, 65% { opacity: 0; transform: rotate(22deg) translateX(-80px); }
+      72% { opacity: 0.7; }
+      88%, 100% { opacity: 0; transform: rotate(22deg) translateX(440px); }
+    }
+
+    @keyframes cardFloatLeft {
+      0%, 100% { transform: rotate(-8deg) translateY(0); }
+      50% { transform: rotate(-6deg) translateY(-7px); }
+    }
+
+    @keyframes cardFloatRight {
+      0%, 100% { transform: rotate(8deg) translateY(-5px); }
+      50% { transform: rotate(6deg) translateY(4px); }
+    }
+
+    @keyframes syncPulse {
+      0%, 100% { transform: translateX(-50%) rotate(-2deg) scale(1); }
+      50% { transform: translateX(-50%) rotate(2deg) scale(1.055); }
+    }
+
+    @keyframes tagFloat {
+      0%, 100% { opacity: 0.82; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes shareFloat {
+      0%, 100% { transform: rotate(-6deg) translateY(0); }
+      50% { transform: rotate(-2deg) translateY(-8px); }
+    }
+
+    @keyframes codePop {
+      from { opacity: 0; transform: translateY(10px) scale(0.85); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fieldShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-7px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    @keyframes scoreReveal {
+      0% { opacity: 0; transform: scale(0.45) rotate(-7deg); }
+      65% { opacity: 1; transform: scale(1.08) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    @keyframes resultTextIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes dotPop {
+      from { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+      to { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    @keyframes confettiFall {
+      0% { opacity: 0; transform: translate3d(0, -20px, 0) rotate(0deg); }
+      10% { opacity: 1; }
+      85% { opacity: 0.9; }
+      100% { opacity: 0; transform: translate3d(var(--drift), 850px, 0) rotate(var(--spin)); }
+    }
+
+    @keyframes starFall {
+      0% { opacity: 0; transform: translate3d(0, -20px, 0) rotate(0deg) scale(0.4); }
+      14% { opacity: 1; transform: translate3d(0, 70px, 0) rotate(70deg) scale(1); }
+      80% { opacity: 0.85; }
+      100% { opacity: 0; transform: translate3d(var(--drift), 780px, 0) rotate(var(--spin)) scale(0.65); }
+    }
+
+    @media (min-width: 481px) {
+      .app {
+        border-radius: 32px;
+      }
+
+      .app::after {
+        border-radius: inherit;
+      }
+    }
+
+    @media (max-height: 730px) {
+      .screen {
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-bottom: max(17px, env(safe-area-inset-bottom));
+      }
+
+      .welcome-copy {
+        margin-top: 16px;
+      }
+
+      .welcome-copy h1 {
+        margin-top: 11px;
+        font-size: 39px;
+      }
+
+      .duo-stage {
+        height: 181px;
+        margin-top: 3px;
+        transform: scale(0.88);
+        transform-origin: center top;
+        margin-bottom: -16px;
+      }
+
+      .quick-stats {
+        margin-bottom: 12px;
+        padding-top: 11px;
+        padding-bottom: 11px;
+      }
+
+      .question-wrap {
+        padding-top: 19px;
+      }
+
+      .question-title {
+        min-height: 54px;
+        margin-bottom: 16px;
+        font-size: 22px;
+      }
+
+      .option-button {
+        min-height: 57px;
+      }
+
+      .options-list {
+        gap: 9px;
+      }
+
+      .quiz-tip {
+        margin-top: 13px;
+      }
+
+      .score-number {
+        font-size: 92px;
+      }
+
+      .result-title {
+        font-size: 27px;
+      }
+
+      .match-summary {
+        margin: 15px 0 13px;
+        padding: 13px;
+      }
+
+      .share-visual {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 18px;
+      }
+
+      .share-content > p {
+        margin-bottom: 17px;
+      }
+    }
+
+    @media (max-width: 350px) {
+      .screen {
+        padding-left: 17px;
+        padding-right: 17px;
+      }
+
+      .profile-you { left: 5px; }
+      .profile-ta { right: 5px; }
+      .code-char { width: 36px; }
+      .share-code { gap: 6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true">
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5m6 6-6-6 6-6"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M13.5 6.5l4 4M4 20l4.5-1 10-10a2.8 2.8 0 0 0-4-4l-10 10L4 20Z"/><path d="m13 20 7 0"/></symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="icon-link" viewBox="0 0 24 24"><path d="m9.5 14.5 5-5M7.8 17.7l-1.1 1.1a3.8 3.8 0 0 1-5.4-5.4l4-4a3.8 3.8 0 0 1 5.4 0M16.2 6.3l1.1-1.1a3.8 3.8 0 0 1 5.4 5.4l-4 4a3.8 3.8 0 0 1-5.4 0" transform="translate(-.35 -.35) scale(.96)"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8.3A7 7 0 0 1 18.7 7L20 12M4 12l1.3 5a7 7 0 0 0 12.6-1.3"/></symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/></symbol>
+  </svg>
+
+  <main class="app" id="app">
+    <div class="ambient ambient-pink"></div>
+    <div class="ambient ambient-cyan"></div>
+
+    <div id="stage">
+      <section class="screen welcome-screen active" id="welcomeScreen" data-screen="welcome">
+        <header class="topbar">
+          <div class="brand"><span class="brand-mark"></span><span>MOQI LAB</span></div>
+          <span class="brand-dim">友情质检中心</span>
+        </header>
+
+        <div class="welcome-copy">
+          <span class="eyebrow">Friends only · 默契质检</span>
+          <h1><span class="gradient-word">默契</span>大挑战</h1>
+          <p>懂我，还是只懂我的外卖备注？<br><strong>五道题，鉴定你们的友情含金量。</strong></p>
+        </div>
+
+        <div class="duo-stage" aria-hidden="true">
+          <span class="mini-tag tag-one">奶茶学家</span>
+          <span class="mini-tag tag-two">火锅搭子</span>
+          <span class="mini-tag tag-three">脑电波连接中...</span>
+          <div class="profile-card profile-you">
+            <div class="profile-avatar">你</div>
+            <strong>我出送分题</strong>
+            <small>应该没人会错吧</small>
+          </div>
+          <div class="sync-badge"><strong>默契 ?</strong><small>SYNCING</small></div>
+          <div class="profile-card profile-ta">
+            <div class="profile-avatar">TA</div>
+            <strong>我来送人头</strong>
+            <small>全凭第六感作答</small>
+          </div>
+        </div>
+
+        <div class="quick-stats glass-card">
+          <div class="quick-stat"><strong>5 道</strong><span>灵魂拷问</span></div>
+          <div class="quick-stat"><strong>30 秒</strong><span>极速上头</span></div>
+          <div class="quick-stat"><strong>1 份</strong><span>友情报告</span></div>
+        </div>
+
+        <div class="welcome-actions">
+          <button class="primary-button" id="createBtn" type="button"><span>我来出题</span><svg class="icon"><use href="#icon-arrow"/></svg></button>
+          <button class="secondary-button" id="answerBtn" type="button"><span>朋友邀我来答题</span><svg class="icon"><use href="#icon-link"/></svg></button>
+        </div>
+        <p class="micro-copy">无压力、无科学依据，只有一点扎心。<br>原型数据仅保存在当前浏览器。</p>
+      </section>
+
+      <section class="screen" id="createScreen" data-screen="create">
+        <div class="quiz-header">
+          <header class="topbar">
+            <button class="icon-button" id="createBackBtn" type="button" aria-label="返回首页"><svg class="icon"><use href="#icon-back"/></svg></button>
+            <div class="brand">出题模式 <span class="brand-dim">/ 关于我</span></div>
+            <button class="text-button" id="editQuestionsBtn" type="button"><svg class="icon"><use href="#icon-edit"/></svg><span>改题</span></button>
+          </header>
+          <div class="progress-meta">
+            <span class="mode-label">你的标准答案，别硬演</span>
+            <strong aria-live="polite"><span id="createCurrent">01</span>/ 05</strong>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="createProgress"></div></div>
+        </div>
+        <div class="question-wrap slide-in" id="createQuestion"></div>
+        <p class="quiz-tip">凭第一直觉选，选完自动下一题。<br>放心，这里没有标准人生，只有你的标准答案。</p>
+      </section>
+
+      <section class="screen share-screen" id="shareScreen" data-screen="share">
+        <header class="topbar">
+          <div class="brand"><span class="brand-mark"></span><span>挑战已生成</span></div>
+          <span class="brand-dim">等待有缘人</span>
+        </header>
+        <div class="share-content">
+          <div class="share-visual"><svg class="icon"><use href="#icon-spark"/></svg></div>
+          <h2>考题已封存<br>坐等友情上分</h2>
+          <p>把链接甩给朋友。答得好是知音，答不好就当给彼此一次重新认识的机会。</p>
+          <div class="code-panel glass-card">
+            <span class="code-panel-label">YOUR CHALLENGE CODE</span>
+            <div class="share-code" id="shareCode" aria-label="你的六位分享码"></div>
+            <p class="code-note">六位暗号已就位，错一个都连不上脑电波</p>
+          </div>
+          <div class="share-actions">
+            <button class="primary-button" id="copyLinkBtn" type="button"><svg class="icon"><use href="#icon-copy"/></svg><span>复制挑战链接</span></button>
+            <button class="secondary-button" id="previewAnswerBtn" type="button"><span>进入朋友答题视角</span><svg class="icon"><use href="#icon-arrow"/></svg></button>
+            <button class="plain-button" id="restartCreateBtn" type="button">不满意？重新出一套</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen code-screen" id="codeScreen" data-screen="code">
+        <header class="topbar">
+          <button class="icon-button" id="codeBackBtn" type="button" aria-label="返回首页"><svg class="icon"><use href="#icon-back"/></svg></button>
+          <div class="brand">朋友视角 <span class="brand-dim">/ 接受挑战</span></div>
+          <span style="width:38px"></span>
+        </header>
+        <div class="code-card glass-card">
+          <div class="code-icon"><svg class="icon"><use href="#icon-link"/></svg></div>
+          <span class="eyebrow" id="codeEyebrow">Incoming challenge</span>
+          <h2>输入暗号<br>开拆友情盲盒</h2>
+          <p>听说有人觉得自己很懂你。<br>先别感动，分数会替你说实话。</p>
+          <label class="field-label" for="codeInput">六位分享码</label>
+          <div class="field-shell" id="codeField">
+            <input class="code-input" id="codeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="6" placeholder="例如 A7K2Q9" aria-describedby="codeError">
+          </div>
+          <p class="form-error" id="codeError" role="alert"></p>
+          <button class="primary-button" id="startAnswerBtn" type="button"><span>开始答题</span><svg class="icon"><use href="#icon-arrow"/></svg></button>
+          <div class="demo-note"><span class="demo-dot"></span><span>原型使用 localStorage 模拟数据。请先用本页生成挑战，再在同一浏览器输入分享码体验完整流程。</span></div>
+        </div>
+      </section>
+
+      <section class="screen" id="answerScreen" data-screen="answer">
+        <div class="quiz-header">
+          <header class="topbar">
+            <button class="icon-button" id="answerBackBtn" type="button" aria-label="返回分享码输入页"><svg class="icon"><use href="#icon-back"/></svg></button>
+            <div class="brand">答题模式 <span class="brand-dim">/ 朋友视角</span></div>
+            <span style="width:38px"></span>
+          </header>
+          <div class="progress-meta">
+            <span class="mode-label">别问 TA，问你的直觉</span>
+            <strong aria-live="polite"><span id="answerCurrent">01</span>/ 05</strong>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="answerProgress"></div></div>
+        </div>
+        <div class="question-wrap slide-in" id="answerQuestion"></div>
+        <p class="quiz-tip">选你最确定的，不许偷偷发消息求助。<br>友情可以塑料，答题必须独立。</p>
+      </section>
+
+      <section class="screen result-screen" id="resultScreen" data-screen="result">
+        <div class="celebration" id="celebration" aria-hidden="true"></div>
+        <header class="topbar">
+          <div class="brand"><span class="brand-mark"></span><span>默契检测报告</span></div>
+          <span class="brand-dim">结果仅供上头</span>
+        </header>
+        <div class="result-content">
+          <span class="eyebrow">Compatibility report</span>
+          <p class="result-overline">你们的默契指数是</p>
+          <div class="score-wrap" aria-live="polite"><span class="score-number" id="scoreNumber">0</span><span class="score-percent">%</span></div>
+          <h2 class="result-title" id="resultTitle">鉴定中</h2>
+          <p class="result-description" id="resultDescription"></p>
+          <div class="match-summary glass-card">
+            <span id="matchSummary">五题答案对照</span>
+            <div class="match-dots" id="matchDots"></div>
+          </div>
+          <div class="result-actions">
+            <button class="primary-button" id="resultCreateBtn" type="button"><span>我也要出一套题</span><svg class="icon"><use href="#icon-arrow"/></svg></button>
+            <button class="secondary-button" id="retryBtn" type="button"><svg class="icon"><use href="#icon-refresh"/></svg><span>不服，再测一次</span></button>
+            <button class="plain-button" id="resultHomeBtn" type="button">回到首页，假装无事发生</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal" id="editorModal" aria-hidden="true">
+      <div class="editor-panel glass-card" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+        <div class="editor-header">
+          <div><h3 id="editorTitle">题目改装车间</h3><p>五道题都能改，友情尺度由你掌握</p></div>
+          <button class="icon-button" id="closeEditorBtn" type="button" aria-label="关闭题目编辑"><svg class="icon"><use href="#icon-close"/></svg></button>
+        </div>
+        <div class="editor-body" id="editorBody"></div>
+        <div class="editor-footer">
+          <button class="secondary-button" id="resetQuestionsBtn" type="button">恢复示例</button>
+          <button class="primary-button" id="saveQuestionsBtn" type="button"><span>保存并重新作答</span><svg class="icon"><use href="#icon-check"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const LETTERS = ["A", "B", "C", "D"];
+      const STORAGE_KEY = "moqi_challenges_v1";
+      const DRAFT_KEY = "moqi_question_draft_v1";
+      const CODE_CHARS = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+      const DEFAULT_QUESTIONS = [
+        { question: "我最爱的奶茶口味是？", options: ["珍珠奶茶", "水果茶", "芝士奶盖", "纯茶"] },
+        { question: "周末我最喜欢？", options: ["宅家追剧", "出门逛街", "运动健身", "睡到自然醒"] },
+        { question: "我的手机壁纸是？", options: ["爱豆/明星", "风景", "宠物", "纯色/默认"] },
+        { question: "吃火锅我必点？", options: ["毛肚", "虾滑", "肥牛", "蔬菜"] },
+        { question: "我的社交风格是？", options: ["社牛本牛", "看情况", "社恐本恐", "网上社牛现实社恐"] }
+      ];
+      const RESULT_LEVELS = [
+        { min: 100, title: "天生一对", description: "你俩这脑电波，路由器看了都喊稳。建议把“懂王”称号一人一半，今后点菜都不用开口。" },
+        { min: 80, title: "神仙默契", description: "差一题就满配，已经很会了。你们不是在交朋友，是在共享人生操作手册。" },
+        { min: 60, title: "有点东西", description: "友情不是塑料，是可回收的高级款。再约两顿火锅，脑电波大概就能自动对齐。" },
+        { min: 40, title: "塑料友情", description: "感情基础还在，了解程度待充值。没事，至少你们给彼此点赞的手速是真的。" },
+        { min: 20, title: "最熟悉的陌生人", description: "你们的关系大概主要靠群聊维持。今天先别绝交，明天从记住奶茶口味开始。" },
+        { min: 0, title: "平行宇宙网友", description: "完美避开所有答案，也是一种绝活。建议交换一下人生说明书，重新认识不丢人。" }
+      ];
+
+      const $ = (id) => document.getElementById(id);
+      const cloneDefaults = () => DEFAULT_QUESTIONS.map((item) => ({ question: item.question, options: [...item.options] }));
+      const runtimeChallenges = Object.create(null);
+      let quizTimer = null;
+      let slideTimer = null;
+      let toastTimer = null;
+      let quizLocked = false;
+
+      const state = {
+        questions: cloneDefaults(),
+        creatorAnswers: Array(5).fill(null),
+        friendAnswers: Array(5).fill(null),
+        creatorIndex: 0,
+        answerIndex: 0,
+        activeCode: "",
+        currentChallenge: null
+      };
+
+      function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[char]);
+      }
+
+      function isValidQuestions(questions) {
+        return Array.isArray(questions) && questions.length === 5 && questions.every((item) =>
+          item && typeof item.question === "string" && item.question.trim() &&
+          Array.isArray(item.options) && item.options.length === 4 &&
+          item.options.every((option) => typeof option === "string" && option.trim())
+        );
+      }
+
+      function loadDraft() {
+        try {
+          const draft = JSON.parse(localStorage.getItem(DRAFT_KEY));
+          if (isValidQuestions(draft)) return draft;
+        } catch (error) {
+          // 存储不可用时使用预置题目。
+        }
+        return cloneDefaults();
+      }
+
+      function saveDraft() {
+        try {
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(state.questions));
+        } catch (error) {
+          // 当前页面内仍可正常体验。
+        }
+      }
+
+      function readChallenges() {
+        try {
+          const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+        } catch (error) {
+          return runtimeChallenges;
+        }
+      }
+
+      function saveChallenge(code, challenge) {
+        runtimeChallenges[code] = challenge;
+        try {
+          const challenges = readChallenges();
+          challenges[code] = challenge;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(challenges));
+        } catch (error) {
+          // 内存副本保证单页演示不中断。
+        }
+      }
+
+      function getChallenge(code) {
+        const challenges = readChallenges();
+        return challenges[code] || runtimeChallenges[code] || null;
+      }
+
+      function generateCode() {
+        const challenges = readChallenges();
+        let code = "";
+        do {
+          code = "";
+          const values = new Uint32Array(6);
+          if (window.crypto && window.crypto.getRandomValues) {
+            window.crypto.getRandomValues(values);
+            for (let i = 0; i < 6; i += 1) code += CODE_CHARS[values[i] % CODE_CHARS.length];
+          } else {
+            for (let i = 0; i < 6; i += 1) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+          }
+        } while (challenges[code] || runtimeChallenges[code]);
+        return code;
+      }
+
+      function clearQuizTimers() {
+        window.clearTimeout(quizTimer);
+        window.clearTimeout(slideTimer);
+        quizLocked = false;
+      }
+
+      function showScreen(name) {
+        const current = document.querySelector(".screen.active");
+        const next = document.querySelector(`[data-screen="${name}"]`);
+        if (!next || current === next) return;
+        if (current) {
+          current.classList.remove("active");
+          current.classList.add("leaving");
+          window.setTimeout(() => current.classList.remove("leaving"), 240);
+        }
+        next.classList.remove("leaving");
+        next.classList.add("active");
+        next.scrollTop = 0;
+      }
+
+      function showToast(message) {
+        window.clearTimeout(toastTimer);
+        $("toast").textContent = message;
+        $("toast").classList.add("show");
+        toastTimer = window.setTimeout(() => $("toast").classList.remove("show"), 2400);
+      }
+
+      function questionMarkup(mode, item, index) {
+        const isCreator = mode === "create";
+        const selectedAnswers = isCreator ? state.creatorAnswers : state.friendAnswers;
+        const selected = selectedAnswers[index];
+        const options = item.options.map((option, optionIndex) => `
+          <button class="option-button${selected === optionIndex ? " selected" : ""}" type="button" data-option="${optionIndex}" aria-pressed="${selected === optionIndex}">
+            <span class="option-letter">${LETTERS[optionIndex]}</span>
+            <span class="option-text">${escapeHTML(option)}</span>
+            <span class="option-check"><svg class="icon"><use href="#icon-check"/></svg></span>
+          </button>`).join("");
+        return `
+          <div class="question-kicker">
+            <span class="eyebrow">${isCreator ? "我的标准答案" : "猜猜 TA 的选择"}</span>
+            <span class="challenge-chip">${isCreator ? `QUESTION 0${index + 1}` : `CODE ${escapeHTML(state.activeCode)}`}</span>
+          </div>
+          <h2 class="question-title">${escapeHTML(item.question)}</h2>
+          <div class="options-list">${options}</div>`;
+      }
+
+      function renderQuestion(mode, animate = true) {
+        const isCreator = mode === "create";
+        const index = isCreator ? state.creatorIndex : state.answerIndex;
+        const questions = isCreator ? state.questions : state.currentChallenge.questions;
+        const wrap = $(isCreator ? "createQuestion" : "answerQuestion");
+        quizLocked = false;
+        wrap.classList.remove("slide-out", "slide-in");
+        wrap.innerHTML = questionMarkup(mode, questions[index], index);
+        if (animate) {
+          void wrap.offsetWidth;
+          wrap.classList.add("slide-in");
+        }
+        $(isCreator ? "createCurrent" : "answerCurrent").textContent = String(index + 1).padStart(2, "0");
+        $(isCreator ? "createProgress" : "answerProgress").style.transform = `scaleX(${(index + 1) / 5})`;
+        wrap.querySelectorAll(".option-button").forEach((button) => {
+          button.addEventListener("click", () => selectOption(mode, Number(button.dataset.option)));
+        });
+      }
+
+      function selectOption(mode, optionIndex) {
+        if (quizLocked) return;
+        quizLocked = true;
+        const isCreator = mode === "create";
+        const index = isCreator ? state.creatorIndex : state.answerIndex;
+        const answers = isCreator ? state.creatorAnswers : state.friendAnswers;
+        answers[index] = optionIndex;
+        const wrap = $(isCreator ? "createQuestion" : "answerQuestion");
+        wrap.querySelectorAll(".option-button").forEach((button) => {
+          const selected = Number(button.dataset.option) === optionIndex;
+          button.classList.toggle("selected", selected);
+          button.classList.toggle("dimmed", !selected);
+          button.setAttribute("aria-pressed", String(selected));
+          button.disabled = true;
+        });
+
+        quizTimer = window.setTimeout(() => {
+          wrap.classList.remove("slide-in");
+          wrap.classList.add("slide-out");
+          slideTimer = window.setTimeout(() => {
+            if (index === 4) {
+              isCreator ? finishCreation() : finishAnswers();
+              return;
+            }
+            if (isCreator) state.creatorIndex += 1;
+            else state.answerIndex += 1;
+            renderQuestion(mode);
+          }, 160);
+        }, 300);
+      }
+
+      function startCreate() {
+        clearQuizTimers();
+        state.questions = loadDraft();
+        state.creatorAnswers = Array(5).fill(null);
+        state.creatorIndex = 0;
+        state.currentChallenge = null;
+        renderQuestion("create", false);
+        showScreen("create");
+      }
+
+      function finishCreation() {
+        const code = generateCode();
+        state.activeCode = code;
+        state.currentChallenge = {
+          code,
+          questions: state.questions.map((item) => ({ question: item.question.trim(), options: item.options.map((option) => option.trim()) })),
+          answers: [...state.creatorAnswers],
+          createdAt: new Date().toISOString()
+        };
+        saveChallenge(code, state.currentChallenge);
+        renderShareCode(code);
+        showScreen("share");
+      }
+
+      function renderShareCode(code) {
+        $("shareCode").innerHTML = code.split("").map((char) => `<span class="code-char">${char}</span>`).join("");
+        $("shareCode").setAttribute("aria-label", `你的分享码是 ${code.split("").join(" ")}`);
+      }
+
+      function challengeLink() {
+        const url = new URL(window.location.href.split("#")[0]);
+        url.search = "";
+        url.searchParams.set("code", state.activeCode);
+        url.hash = "answer";
+        return url.toString();
+      }
+
+      async function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        textarea.remove();
+        if (!copied) throw new Error("copy failed");
+      }
+
+      function openCodeScreen(prefill = "") {
+        clearQuizTimers();
+        $("codeInput").value = prefill;
+        $("codeError").textContent = "";
+        $("codeField").classList.remove("error");
+        $("codeEyebrow").textContent = prefill ? "你收到一份默契挑战" : "Incoming challenge";
+        showScreen("code");
+        window.setTimeout(() => $("codeInput").focus({ preventScroll: true }), 440);
+      }
+
+      function startAnswers() {
+        const code = $("codeInput").value.trim().toUpperCase();
+        const challenge = getChallenge(code);
+        if (!/^[A-Z0-9]{6}$/.test(code)) {
+          showCodeError("暗号是 6 位字母或数字，再瞅瞅是不是少输了。");
+          return;
+        }
+        if (!challenge || !isValidQuestions(challenge.questions) || !Array.isArray(challenge.answers) || challenge.answers.length !== 5) {
+          showCodeError("没找到这份挑战。暗号可能手滑了，也可能友情过期了。");
+          return;
+        }
+        clearQuizTimers();
+        state.activeCode = code;
+        state.currentChallenge = challenge;
+        state.friendAnswers = Array(5).fill(null);
+        state.answerIndex = 0;
+        $("codeError").textContent = "";
+        $("codeField").classList.remove("error");
+        renderQuestion("answer", false);
+        showScreen("answer");
+      }
+
+      function showCodeError(message) {
+        $("codeError").textContent = message;
+        $("codeField").classList.remove("error");
+        void $("codeField").offsetWidth;
+        $("codeField").classList.add("error");
+        $("codeInput").focus();
+      }
+
+      function finishAnswers() {
+        const matches = state.currentChallenge.answers.map((answer, index) => Number(answer) === Number(state.friendAnswers[index]));
+        const correct = matches.filter(Boolean).length;
+        const score = correct * 20;
+        const level = RESULT_LEVELS.find((item) => score >= item.min) || RESULT_LEVELS[RESULT_LEVELS.length - 1];
+        $("scoreNumber").textContent = score;
+        $("resultTitle").textContent = level.title;
+        $("resultDescription").textContent = level.description;
+        $("matchSummary").textContent = `五题命中 ${correct} 题 · ${correct === 5 ? "全对，建议锁死这段友情" : "亮绿灯的就是答对的"}`;
+        $("matchDots").innerHTML = matches.map((match, index) => `<span class="match-dot ${match ? "match" : "miss"}" aria-label="第${index + 1}题${match ? "答对" : "答错"}">${match ? "✓" : "×"}</span>`).join("");
+        createCelebration();
+        showScreen("result");
+      }
+
+      function createCelebration() {
+        const colors = ["#25f4ee", "#fe2c55", "#ffcc66", "#8b5cf6", "#ffffff"];
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < 38; i += 1) {
+          const particle = document.createElement("span");
+          const isStar = i % 3 === 0;
+          particle.className = isStar ? "star-particle" : "confetti";
+          particle.style.setProperty("--left", `${Math.random() * 100}%`);
+          particle.style.setProperty("--size", `${isStar ? 8 + Math.random() * 9 : 4 + Math.random() * 5}px`);
+          particle.style.setProperty("--color", colors[i % colors.length]);
+          particle.style.setProperty("--drift", `${-75 + Math.random() * 150}px`);
+          particle.style.setProperty("--spin", `${240 + Math.random() * 620}deg`);
+          particle.style.setProperty("--duration", `${3.2 + Math.random() * 2.5}s`);
+          particle.style.setProperty("--delay", `${Math.random() * 2.2}s`);
+          fragment.appendChild(particle);
+        }
+        $("celebration").replaceChildren(fragment);
+      }
+
+      function openEditor() {
+        fillEditor(state.questions);
+        $("editorModal").classList.add("open");
+        $("editorModal").setAttribute("aria-hidden", "false");
+      }
+
+      function closeEditor() {
+        $("editorModal").classList.remove("open");
+        $("editorModal").setAttribute("aria-hidden", "true");
+      }
+
+      function fillEditor(questions) {
+        $("editorBody").innerHTML = questions.map((item, index) => `
+          <section class="edit-group">
+            <div class="edit-group-title"><span>第 ${index + 1} 题</span><span>QUESTION 0${index + 1}</span></div>
+            <input class="edit-input edit-question" data-question="${index}" type="text" maxlength="40" value="${escapeHTML(item.question)}" aria-label="第${index + 1}题题目">
+            <div class="edit-options">
+              ${item.options.map((option, optionIndex) => `
+                <label class="edit-option-wrap"><span>${LETTERS[optionIndex]}</span><input class="edit-input edit-option" data-question-option="${index}" data-option-index="${optionIndex}" type="text" maxlength="18" value="${escapeHTML(option)}" aria-label="第${index + 1}题选项${LETTERS[optionIndex]}"></label>`).join("")}
+            </div>
+          </section>`).join("");
+      }
+
+      function saveEditedQuestions() {
+        const questions = cloneDefaults();
+        for (let i = 0; i < 5; i += 1) {
+          const questionInput = document.querySelector(`[data-question="${i}"]`);
+          const question = questionInput.value.trim();
+          if (!question) {
+            questionInput.focus();
+            showToast(`第 ${i + 1} 题还没写题目，别只出空气`);
+            return;
+          }
+          questions[i].question = question;
+          for (let j = 0; j < 4; j += 1) {
+            const optionInput = document.querySelector(`[data-question-option="${i}"][data-option-index="${j}"]`);
+            const option = optionInput.value.trim();
+            if (!option) {
+              optionInput.focus();
+              showToast(`第 ${i + 1} 题的选项 ${LETTERS[j]} 还是空的`);
+              return;
+            }
+            questions[i].options[j] = option;
+          }
+        }
+        state.questions = questions;
+        state.creatorAnswers = Array(5).fill(null);
+        state.creatorIndex = 0;
+        saveDraft();
+        renderQuestion("create");
+        closeEditor();
+        showToast("题目改装完成，标准答案也清空啦");
+      }
+
+      function goHome() {
+        clearQuizTimers();
+        closeEditor();
+        showScreen("welcome");
+      }
+
+      $("createBtn").addEventListener("click", startCreate);
+      $("answerBtn").addEventListener("click", () => openCodeScreen());
+      $("createBackBtn").addEventListener("click", goHome);
+      $("codeBackBtn").addEventListener("click", goHome);
+      $("resultHomeBtn").addEventListener("click", goHome);
+      $("answerBackBtn").addEventListener("click", () => openCodeScreen(state.activeCode));
+      $("restartCreateBtn").addEventListener("click", startCreate);
+      $("resultCreateBtn").addEventListener("click", startCreate);
+      $("previewAnswerBtn").addEventListener("click", () => openCodeScreen(state.activeCode));
+      $("startAnswerBtn").addEventListener("click", startAnswers);
+      $("retryBtn").addEventListener("click", () => {
+        clearQuizTimers();
+        state.friendAnswers = Array(5).fill(null);
+        state.answerIndex = 0;
+        renderQuestion("answer", false);
+        showScreen("answer");
+      });
+      $("copyLinkBtn").addEventListener("click", async () => {
+        try {
+          await copyText(challengeLink());
+          showToast("链接已复制，快去检验友情");
+        } catch (error) {
+          showToast(`复制失败，请手动记下分享码 ${state.activeCode}`);
+        }
+      });
+      $("codeInput").addEventListener("input", (event) => {
+        event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+        $("codeError").textContent = "";
+        $("codeField").classList.remove("error");
+      });
+      $("codeInput").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") startAnswers();
+      });
+      $("editQuestionsBtn").addEventListener("click", openEditor);
+      $("closeEditorBtn").addEventListener("click", closeEditor);
+      $("editorModal").addEventListener("click", (event) => {
+        if (event.target === $("editorModal")) closeEditor();
+      });
+      $("resetQuestionsBtn").addEventListener("click", () => {
+        fillEditor(cloneDefaults());
+        showToast("示例题已恢复，保存后生效");
+      });
+      $("saveQuestionsBtn").addEventListener("click", saveEditedQuestions);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && $("editorModal").classList.contains("open")) closeEditor();
+      });
+
+      state.questions = loadDraft();
+      const incomingCode = new URLSearchParams(window.location.search).get("code");
+      if (incomingCode) openCodeScreen(incomingCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6));
+    })();
+  </script>
+</body>
+</html>
