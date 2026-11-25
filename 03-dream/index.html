@@ -371,6 +371,24 @@
       transform: rotate(-10deg);
     }
     .dream-reading { margin-top: 14px; padding: 0 3px; }
+    .decode-card {
+      margin-top: 12px; padding: 12px 14px;
+      border: 1px solid rgba(255, 241, 214, .13);
+      background: linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .015));
+    }
+    .decode-head { display: flex; align-items: center; gap: 10px; }
+    .decode-head span { color: var(--gold); font-size: 10px; letter-spacing: .16em; }
+    .decode-head i { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(232, 215, 173, .25), transparent); }
+    .symbol-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
+    .symbol-item { padding: 7px 9px; border: 1px solid rgba(255, 241, 214, .1); background: rgba(255, 255, 255, .03); }
+    .symbol-name { font-size: 11.5px; color: #f2e6cf; letter-spacing: .05em; }
+    .symbol-meaning { margin-top: 3px; font-size: 10.5px; line-height: 1.6; color: #b3a8c8; }
+    .mood-line { display: flex; align-items: center; gap: 9px; margin-top: 12px; font-size: 10.5px; color: #cfc4de; }
+    .mood-track { flex: 1; height: 3px; background: rgba(255, 255, 255, .09); overflow: hidden; }
+    .mood-fill { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #8f7ad6, #f3d9a4); transition: width .8s ease; }
+    .mood-score { font-family: "Cormorant Garamond", serif; font-size: 14px; color: var(--gold); }
+    .advice-line, .lore-line { margin-top: 10px; font-size: 11px; line-height: 1.75; color: #b3a8c8; }
+    .advice-line b, .lore-line b { color: #f2e6cf; font-weight: 500; margin-right: 6px; }
     .reading-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .reading-head span { color: var(--gold); font-size: 10px; letter-spacing: .16em; }
     .reading-head i { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(232, 215, 173, .25), transparent); }
@@ -575,6 +593,17 @@
         <p id="readingText"></p>
         <p class="original-dream" id="originalDream"></p>
       </div>
+      <div class="decode-card">
+        <div class="decode-head"><span>梦境解码</span><i></i></div>
+        <div class="symbol-list" id="symbolList"></div>
+        <div class="mood-line">
+          <span id="moodLabel"></span>
+          <span class="mood-track"><i class="mood-fill" id="moodFill"></i></span>
+          <strong class="mood-score" id="moodScore"></strong>
+        </div>
+        <p class="advice-line" id="adviceText"></p>
+        <p class="lore-line" id="loreText"></p>
+      </div>
       <div class="result-actions">
         <button class="secondary-btn" id="restartBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10a8 8 0 1 1 2 7M4 10V4m0 6h6"/></svg>
@@ -778,6 +807,38 @@
         }
       };
 
+      // 结构化解梦数据：[意象对的含义, 情绪基调+强度, 现实提示, 传统说法]
+      const DREAM_CODES = {
+        fly: ['飞翔|对自由的渴望；失重|想跳出当下处境', '轻盈 72', '这周给自己留两小时完全不被打扰的时间。', '梦飞越高，心事越将解开。'],
+        chase: ['被追赶|正在回避的压力；逃跑|还没准备好的应对', '紧绷 78', '把最怕的那件事写下来，只做最小的第一步。', '被人追，主近日有事待了。'],
+        sea: ['海水|情绪的深浅；潮汐|起伏不定的心境', '起伏 60', '允许自己什么都不做地待一会儿，情绪会自己退潮。', '水清主顺，水浊主忧。'],
+        memory: ['故人|未完成的情感；旧地|想被理解的自己', '怀念 55', '给很久没联系的人发一句问候，不为结果。', '见故人，主旧事将了。'],
+        exam: ['考场|被评判的焦虑；空白试卷|对准备不足的担心', '焦虑 68', '把"万一做不好"换成"先做完，再改"。', '考试者，主近日有校验之事。'],
+        teeth: ['掉牙|对失去的担心；松动|正在松绑的旧状态', '不安 58', '找一件能完全掌控的小事做完，找回确定感。', '齿落主亲旧之变，宜多问候。'],
+        rain: ['雨|情绪的清洗；水洼|积压后的小释放', '潮湿 45', '找个人说十分钟心里话，或写三行日记。', '雨落庭前，主烦忧渐散。'],
+        snow: ['雪|需要静下来的心；覆盖|暂时藏起的情绪', '安静 52', '给自己安排一个什么都不做的晚上。', '雪满山川，主旧事归寂。'],
+        forest: ['森林|缓慢的成长；林间小路|正在摸索的方向', '沉静 58', '把长期目标拆成一件本周能做完的小事。', '入林见木，主根基渐稳。'],
+        city: ['街道|寻找归属；霓虹|被看见的渴望', '漂泊 63', '列出三个让你觉得踏实的地方，抽空去一个。', '城市迷路，主方向将明。'],
+        fall: ['坠落|变化前的失重；深渊|对未知的想象', '失重 70', '把担心的事分成"能控制/不能控制"两栏，只处理前者。', '坠而落地，主虚惊一场。'],
+        house: ['房子|内心的样貌；门|新的入口或界限', '安定 40', '整理一个房间角落，身体会先感到安全。', '屋宇明亮，主家宅安稳。'],
+        animal: ['动物|被压住的直觉；注视|想被理解的自己', '本能 66', '今天做一件完全顺从心意的小选择。', '兽来不伤，主心中有依。'],
+        fire: ['火|强烈的情绪；烟|还没说出口的话', '炽烈 74', '把想说的话写下来，先不发送。', '火起而旺，主心气正盛。'],
+        space: ['星空|需要拉远的视角；星球|孤独又完整', '辽阔 50', '抬头看一次夜空，或者看一段宇宙纪录片。', '梦登天者，主志向高远。'],
+        mirror: ['镜面|自我审视；倒影|没被承认的一面', '自省 55', '写三句对自己的肯定，别评判地读一遍。', '对镜自照，主内省有得。'],
+        music: ['旋律|未表达的情绪；舞台|被听见的渴望', '共鸣 62', '戴上耳机把那首歌完整听完，不分心。', '闻乐声，主喜事将近。'],
+        food: ['食物|安全感的缺口；热气|被照顾的需要', '渴求 57', '认真吃一顿热饭，不看手机。', '食甘味，主身体将安。'],
+        wedding: ['仪式|对承诺的在意；婚纱|想被郑重对待', '郑重 60', '想清楚最近答应的哪件事，其实是勉强。', '红妆入门，主喜信将至。'],
+        baby: ['婴儿|刚萌芽的开始；摇篮|需要被照顾的部分', '柔软 48', '给那个新想法留出十五分钟，别急着评价。', '梦抱婴儿，主新事有望。'],
+        farewell: ['白花|认真的怀念；背影|还没说完的告别', '怀念 65', '给想念的人写一封信，不寄出也可以。', '梦中送别，主牵挂之事将了。'],
+        numbers: ['数字|对掌控的需求；格子|被规则框住的感觉', '秩序 55', '把待办清单删掉一半，只留最重要的三件。', '数目分明，主近日事了。'],
+        race: ['竞速|想快点的冲动；赛道|被规定好的路径', '疾驰 72', '在中途允许自己刹一次车，看看风景。', '驰骋得胜，主心愿将达。'],
+        injury: ['伤口|需要被照顾的地方；搀扶|愿意求助的信号', '疼痛 64', '今天早点睡，把身体的需要放在第一位。', '见伤不痛，主平安无事。']
+      };
+
+      function buildAutoCode() {
+        return ['未命名场景|潜意识还没整理完的片段；模糊光线|某种正在靠近的可能', '待解 50', '把梦写下来，过几天再看，往往能读出新的意思。', '梦无定解，心之所向即为方向。'];
+      }
+
       const AUTO_PALETTES = [
         ['#0a0f24', '#1b2a4a', '#2f4d7a', '#a8c8ff'],
         ['#150a20', '#33194a', '#5b2f7a', '#e0b3ff'],
@@ -845,6 +906,9 @@
         $('#app').dataset.screen = name;
       }
 
+      // 这些单字本身就是明确意象，命中即可判主题
+      const STRONG_SINGLE = ['猫', '狗', '蛇', '鸟', '鱼', '鹿', '马', '兔', '鼠', '虎', '牙', '雨', '雪', '火', '烟', '树', '门', '冰', '歌', '车', '船', '桥', '镜'];
+
       function detectTheme(text) {
         let winner = null, best = 0, strong = 0;
         Object.entries(themes).forEach(([key, theme]) => {
@@ -852,7 +916,7 @@
           theme.keywords.forEach(word => {
             if (!text.includes(word)) return;
             if (word.length > 1) { score += 3 + word.length; strongHits += 1; }
-            else score += 1;
+            else { score += 1; if (STRONG_SINGLE.indexOf(word) > -1) strongHits += 1; }
           });
           if (score > best) { best = score; strong = strongHits; winner = Object.assign({ key }, theme); }
         });
@@ -944,6 +1008,34 @@
         canvas.style.visibility = 'visible';
       }
 
+      function renderDecode(key) {
+        const code = DREAM_CODES[key] || buildAutoCode();
+        const list = $('#symbolList');
+        list.innerHTML = '';
+        code[0].split('；').forEach(pair => {
+          const parts = pair.split('|');
+          const item = document.createElement('div');
+          item.className = 'symbol-item';
+          const name = document.createElement('div');
+          name.className = 'symbol-name';
+          name.textContent = parts[0];
+          const meaning = document.createElement('div');
+          meaning.className = 'symbol-meaning';
+          meaning.textContent = parts[1] || '';
+          item.appendChild(name);
+          item.appendChild(meaning);
+          list.appendChild(item);
+        });
+        const mood = code[1].split(' ');
+        const score = Math.max(10, Math.min(100, Number(mood[1]) || 50));
+        $('#moodLabel').textContent = `情绪基调 · ${mood[0]}`;
+        $('#moodScore').textContent = score;
+        $('#moodFill').style.width = '0';
+        timers.push(setTimeout(() => { $('#moodFill').style.width = `${score}%`; }, 60));
+        $('#adviceText').textContent = `现实提示｜${code[2]}`;
+        $('#loreText').textContent = `传统说法｜${code[3]}`;
+      }
+
       function showResult() {
         const theme = currentTheme;
         const aiImg = $('#aiArt');
@@ -962,6 +1054,7 @@
         $('#artSubtitle').textContent = theme.subtitle;
         $('#readingText').textContent = theme.reading;
         $('#originalDream').textContent = `梦境手记 / ${currentDream}`;
+        renderDecode(theme.key);
         $('#galleryIndex').textContent = `NO. ${String(Math.floor(hashCode(currentDream) % 9000) + 1000).padStart(4, '0')}`;
         showScreen('result');
       }
