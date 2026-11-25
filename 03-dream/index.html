@@ -602,7 +602,7 @@
       const ctx = canvas.getContext('2d');
       const W = 1000, H = 780;
       let timers = [];
-      let currentTheme = 'default';
+      let currentTheme = null;
       let currentDream = '';
       let toastTimer;
 
@@ -637,12 +637,147 @@
           keywords: ['掉牙', '牙齿', '牙掉', '脱落', '碎了', '碎片', '换牙', '拔牙', '牙'],
           reading: '梦里的脱落，常像一场有点笨拙的告别。也许你正在放下旧习惯，或走进还不熟悉的新阶段。不安并不说明脆弱，它只说明变化正在发生。给新的自己一点时间，柔软也会长成力量。'
         },
-        default: {
-          title: '潜意识寄来的星图', subtitle: 'A LETTER FROM YOUR INNER UNIVERSE', stamp: '梦境',
-          keywords: [],
-          reading: '梦把白天的碎片重新排列，替你保存那些没来得及感受的瞬间。不必急着寻找唯一答案，画里的每一束光都可以有自己的名字。愿你在醒来以后，也愿意倾听心里细微而真诚的声音。'
+        rain: {
+          title: '雨落在没人听见的地方', subtitle: 'A SOFT RAIN INSIDE YOUR CHEST', stamp: '释然',
+          keywords: ['下雨', '暴雨', '淋雨', '雨伞', '梅雨', '潮湿', '水洼', '雷声', '打雷', '雨', '湿'],
+          vis: { palette: ['#0b1524', '#152a3d', '#26566b', '#a9d8e8'], motif: 'rain' },
+          reading: '雨在梦里替你把情绪说出口。被打湿的不一定是坏事，它更像一次缓慢的清洗。等雨停的时候，你会发现那些压着你的重量，已经轻了一点。'
+        },
+        snow: {
+          title: '世界被安静地覆盖', subtitle: 'EVERYTHING SOFTLY PUT TO SLEEP', stamp: '留白',
+          keywords: ['下雪', '雪地', '雪人', '结冰', '寒冷', '冰面', '冬天', '白茫茫', '雪', '冰', '冻'],
+          vis: { palette: ['#101a2b', '#2a3f5c', '#5b7fa6', '#d9ecfa'], motif: 'snow' },
+          reading: '雪把世界调成静音，也把心里的噪音盖住了。也许是身体在提醒你：可以先停一停，什么都不做也没关系。留白不是空，是给新的东西腾位置。'
+        },
+        forest: {
+          title: '走进一片会呼吸的绿', subtitle: 'THE FOREST KNOWS YOUR PACE', stamp: '生长',
+          keywords: ['森林', '树林', '大树', '丛林', '草地', '花园', '藤蔓', '竹林', '山谷', '林间', '树'],
+          vis: { palette: ['#08130f', '#12321f', '#24603a', '#9fe0a8'], motif: 'forest' },
+          reading: '森林在梦里出现，常常意味着你正处在一种缓慢但确定的生长里。树不着急，却一直在长。你也可以按自己的速度来，不必和谁比较年轮。'
+        },
+        city: {
+          title: '霓虹替你记着回家的路', subtitle: 'LIGHTS THAT NEVER FULLY SLEEP', stamp: '漂泊',
+          keywords: ['城市', '高楼', '街道', '马路', '地铁', '公交', '霓虹', '红绿灯', '写字楼', '商场', '站台', '人潮', '迷路', '车'],
+          vis: { palette: ['#070a18', '#131a33', '#2b2f5e', '#ff6f9c'], motif: 'city' },
+          reading: '城市的灯很多，有时反而显得孤单。梦里的街道可能映出你对方向和归属的在意。别急着找到终点，先确认哪一盏灯让你觉得踏实，朝它走就好。'
+        },
+        fall: {
+          title: '下坠，也是一种靠近', subtitle: 'THE FALL BEFORE YOU LAND', stamp: '失重',
+          keywords: ['坠落', '掉下去', '掉下', '高空', '悬崖', '摔下去', '失控', '跌倒', '失重', '深渊', '悬空'],
+          vis: { palette: ['#0a0716', '#241436', '#4b2350', '#e0a0cc'], motif: 'fall' },
+          reading: '坠落感常出现在变化来临之前。梦里的失控，很多时候只是现实里你在努力抓住太多东西。试着松手一点点，你会发现下面并不是深渊，而是一张接住你的网。'
+        },
+        house: {
+          title: '门后亮着一盏等你', subtitle: 'A LIGHT LEFT ON FOR YOU', stamp: '归处',
+          keywords: ['房间', '房子', '走廊', '楼梯', '卧室', '客厅', '老屋', '钥匙', '锁住', '门窗', '家里', '门'],
+          vis: { palette: ['#0f0b12', '#2a1c22', '#5a3a34', '#f5c98f'], motif: 'house' },
+          reading: '房子在梦里是你内心的样子。走廊、门和灯，都在说你正在寻找一个可以安放自己的地方。那盏灯不必很亮，只要是你自己点的，就足够温暖。'
+        },
+        animal: {
+          title: '它们替你记得原始的心跳', subtitle: 'INSTINCTS WITH GENTLE EYES', stamp: '本能',
+          keywords: ['狗', '猫', '蛇', '老虎', '狮子', '蜘蛛', '虫子', '蟑螂', '兔子', '宠物', '动物', '鸟', '鹿', '马'],
+          vis: { palette: ['#0d1410', '#1d2e1f', '#3c5a34', '#ecdfa6'], motif: 'animal' },
+          reading: '动物在梦里常代表被压住的直觉。它们安静地看着你，像在提醒：有些感受不必讲道理，它本来就属于你。允许自己直接一点，也是一种诚实。'
+        },
+        fire: {
+          title: '心里有火，不必都烧掉', subtitle: 'HEAT THAT WANTS TO TRANSFORM', stamp: '炽烈',
+          keywords: ['大火', '燃烧', '烧起来', '爆炸', '火灾', '火焰', '冒烟', '着火', '火', '烟'],
+          vis: { palette: ['#140403', '#3d0d08', '#8c2410', '#ffb347'], motif: 'fire' },
+          reading: '火是情绪，也是能量。它可能烧的是委屈，也可能是还没说出口的热情。别急着扑灭，先看看它想照亮什么、又想带走什么。'
+        },
+        space: {
+          title: '在群星之间重新定位', subtitle: 'YOU ARE A SMALL, BRIGHT POINT', stamp: '辽阔',
+          keywords: ['太空', '宇宙', '星球', '宇航员', '银河', '星空', '外星', '火箭', '卫星', '月亮', '星星', '星空'],
+          vis: { palette: ['#04030f', '#0d0b2b', '#241a55', '#a99cff'], motif: 'space' },
+          reading: '太空里的渺小感并不让人难过，反而让人放松。你大概需要一点距离，去看清眼前的烦恼其实没有那么大。星一直在，你也一直在。'
+        },
+        mirror: {
+          title: '镜子里那个你，也辛苦了', subtitle: 'MEETING YOURSELF AGAIN', stamp: '自省',
+          keywords: ['镜子', '镜中', '倒影', '分身', '另一个我', '影子', '双胞胎', '水面倒影'],
+          vis: { palette: ['#0a0a14', '#1c1c33', '#3d3d66', '#cfd8ff'], motif: 'mirror' },
+          reading: '镜子在梦里常指向自我审视。你看到的可能不是另一个你，而是你一直没好好打过招呼的自己。试着对镜子里的人温和一点，你们是同一队的。'
+        },
+        music: {
+          title: '心里有一段旋律没停', subtitle: 'A SONG ONLY YOU CAN HEAR', stamp: '共鸣',
+          keywords: ['音乐', '唱歌', '钢琴', '吉他', '演唱会', '舞台', '旋律', '耳机', '乐队', '跳舞', '歌'],
+          vis: { palette: ['#0b0512', '#22103a', '#4a1f6b', '#ffb3e6'], motif: 'music' },
+          reading: '音乐出现在梦里，往往说明某种情绪正在找你共鸣。它可能是一句没说完的话，一段还没结束的心情。把它哼出来吧，被听见的情绪会变轻。'
+        },
+        food: {
+          title: '好好吃饭，是件正经事', subtitle: 'WARMTH YOU CAN ACTUALLY TASTE', stamp: '滋养',
+          keywords: ['吃饭', '食物', '蛋糕', '火锅', '面条', '米饭', '烧烤', '冰淇淋', '奶茶', '甜点', '很饿', '吃'],
+          vis: { palette: ['#1a0f07', '#3d2210', '#7a4a1d', '#ffd08a'], motif: 'food' },
+          reading: '食物在梦里常常和安全感有关。你可能最近有点累，需要一点具体的、能尝到的安慰。别小看一顿热饭，它接住的是整个人。'
+        },
+        wedding: {
+          title: '一场关于承诺的预演', subtitle: 'A VOW YOUR HEART IS WRITING', stamp: '承诺',
+          keywords: ['婚礼', '结婚', '婚纱', '新郎', '新娘', '求婚', '戒指', '礼堂'],
+          vis: { palette: ['#141018', '#33243a', '#6b4a63', '#ffe0ea'], motif: 'wedding' },
+          reading: '婚礼不一定是关于别人，也可能是你在和自己约定什么。梦里的仪式感，映出你对某段关系或某个决定的认真。想清楚你想要的那个"我愿意"。'
+        },
+        baby: {
+          title: '有个小小的新开始', subtitle: 'SOMETHING NEW IS GROWING', stamp: '新生',
+          keywords: ['婴儿', '宝宝', '怀孕', '摇篮', '小孩', '孩子'],
+          vis: { palette: ['#101a24', '#24384a', '#4a6d82', '#ffe9c2'], motif: 'baby' },
+          reading: '婴儿在梦里常象征刚刚开始的东西——一个想法、一种状态、一份还没名字的期待。它很小，需要被照顾。别催它长大，先让它安全地待着。'
+        },
+        farewell: {
+          title: '告别，是爱的另一种留下', subtitle: 'WHAT REMAINS WHEN WE LET GO', stamp: '怀念',
+          keywords: ['葬礼', '去世', '死亡', '离开人世', '离别', '告别', '墓碑', '送别', '火化'],
+          vis: { palette: ['#0b0b10', '#242430', '#4a4a5c', '#ffe9c9'], motif: 'farewell' },
+          reading: '梦见离别，往往不是预兆，而是心里还在认真地想念。那盏灯、那个人、那段时光，都真实地存在过。允许自己怀念，也允许自己继续往前走。'
+        },
+        numbers: {
+          title: '生活被排成了整齐的格子', subtitle: 'COUNTING WHAT YOU CAN CONTROL', stamp: '秩序',
+          keywords: ['数字', '数学', '算数', '公式', '计时', '倒计时', '格子', '表格', '统计'],
+          vis: { palette: ['#0a0a12', '#1c2030', '#2f3b52', '#a8d8ff'], motif: 'numbers' },
+          reading: '数字和规则在梦里出现，常常说明你最近对"掌控感"有需求。想把一切算清楚，是很正常的。但也别忘记，有些事不用精确，也能过得很好。'
         }
       };
+
+      const AUTO_PALETTES = [
+        ['#0a0f24', '#1b2a4a', '#2f4d7a', '#a8c8ff'],
+        ['#150a20', '#33194a', '#5b2f7a', '#e0b3ff'],
+        ['#0b1a16', '#153a2c', '#2b6a4f', '#a8f0c8'],
+        ['#1a0f0a', '#3d2114', '#7a4526', '#ffcfa0'],
+        ['#0a1418', '#16323d', '#2c6478', '#a8e8f0'],
+        ['#1a0a14', '#3d1a2e', '#7a3657', '#ffb3d1'],
+        ['#0f0f1a', '#242438', '#454570', '#c8ccff'],
+        ['#14120a', '#332c14', '#5f5426', '#ffe9a8']
+      ];
+      const AUTO_TITLES = [
+        ['潜意识寄来的星图', 'A LETTER FROM YOUR INNER UNIVERSE'],
+        ['心事在半空轻轻打转', 'SOMETHING FLOATING, UNNAMED'],
+        ['夜里的另一种天气', 'THE WEATHER INSIDE YOUR SLEEP'],
+        ['梦里有一段没说完的话', 'A SENTENCE LEFT UNFINISHED'],
+        ['记忆在水中换了形状', 'MEMORY, SLIGHTLY REFRACTED'],
+        ['你在深蓝色的地方停了一会儿', 'A PAUSE IN DEEP BLUE'],
+        ['未命名的情绪栖息地', 'A HABITAT FOR FEELINGS'],
+        ['醒来之前的那一小段光', 'THE LAST LIGHT BEFORE WAKING']
+      ];
+      const AUTO_READINGS = [
+        '梦把白天的碎片重新排列，替你保存那些没来得及感受的瞬间。',
+        '有些梦不需要解释，它只是替你保管了一段说不清的心情。',
+        '梦里出现的画面，往往是心里还没来得及命名的东西。',
+        '不必急着寻找唯一答案，画里的每一束光都可以有自己的名字。',
+        '潜意识说话的方式很温柔，它用画面代替了那些没说出口的话。',
+        '愿你在醒来以后，也愿意倾听心里细微而真诚的声音。'
+      ];
+
+      function buildAutoTheme(text) {
+        const seed = hashCode(text);
+        const palette = AUTO_PALETTES[seed % AUTO_PALETTES.length];
+        const title = AUTO_TITLES[Math.floor(seed / 7) % AUTO_TITLES.length];
+        const snippet = text.replace(/\s+/g, '').slice(0, 14);
+        return {
+          key: 'auto',
+          title: title[0],
+          subtitle: title[1],
+          stamp: '梦境',
+          reading: `${AUTO_READINGS[(seed >>> 3) % AUTO_READINGS.length]}你提到的「${snippet}」，也许正是潜意识想让你重新看一眼的地方。`,
+          vis: { palette, motif: 'constellation' }
+        };
+      }
 
       function createStars() {
         const fragment = document.createDocumentFragment();
@@ -668,15 +803,15 @@
       }
 
       function detectTheme(text) {
-        let winner = 'default', highScore = 0;
+        let winner = null, highScore = 0;
         Object.entries(themes).forEach(([key, theme]) => {
           let score = 0;
           theme.keywords.forEach(word => {
             if (text.includes(word)) score += word.length > 1 ? 3 : 1;
           });
-          if (score > highScore) { highScore = score; winner = key; }
+          if (score > highScore) { highScore = score; winner = Object.assign({ key }, theme); }
         });
-        return winner;
+        return highScore >= 1 && winner ? winner : buildAutoTheme(text);
       }
 
       function updateInput() {
@@ -722,8 +857,8 @@
       }
 
       function showResult() {
-        const theme = themes[currentTheme];
-        drawDream(currentTheme, currentDream);
+        const theme = currentTheme;
+        drawDream(theme, currentDream);
         $('#artTitle').textContent = theme.title;
         $('#artSubtitle').textContent = theme.subtitle;
         $('#readingText').textContent = theme.reading;
@@ -743,7 +878,7 @@
         try {
           const link = document.createElement('a');
           link.href = canvas.toDataURL('image/png');
-          link.download = `梦境画廊-${themes[currentTheme].title}.png`;
+          link.download = `梦境画廊-${currentTheme.title}.png`;
           document.body.appendChild(link);
           link.click();
           link.remove();
@@ -1027,29 +1162,324 @@
         addGrain(rand,false);
       }
 
-      function paintDefault(rand) {
-        ctx.fillStyle=linear(0,0,W,H,[[0,'#100d35'],[.45,'#423277'],[.75,'#735391'],[1,'#241d4b']]);ctx.fillRect(0,0,W,H);
-        glow(590,310,400,'rgba(200,157,255,.38)');
-        for(let i=0;i<180;i++) circle(rand()*W,rand()*H,rand()*2.3+.4,`rgba(255,239,207,${.12+rand()*.72})`);
-        ctx.save();ctx.translate(530,345);ctx.rotate(-.2);
-        circle(0,0,150,'rgba(244,223,182,.82)');circle(65,-40,146,'rgba(59,43,105,.96)');ctx.restore();
-        ctx.save();ctx.lineCap='round';
-        for(let i=0;i<14;i++) {
-          ctx.beginPath();ctx.moveTo(-100,660-i*15);ctx.bezierCurveTo(220,240+i*12,630,760-i*37,1100,190+i*4);
-          ctx.strokeStyle=`rgba(220,190,255,${.025+i*.012})`;ctx.lineWidth=3+i*.7;ctx.stroke();
-        }ctx.restore();
-        for(let i=0;i<9;i++) {
-          const x=rand()*W,y=rand()*H,r=12+rand()*30;
-          ctx.strokeStyle=`rgba(244,218,175,${.15+rand()*.3})`;ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();
-          line([[x-r*1.7,y],[x+r*1.7,y]],ctx.strokeStyle,1);line([[x,y-r*1.7],[x,y+r*1.7]],ctx.strokeStyle,1);
+      function paintScene(vis, rand) {
+        const p = vis.palette || AUTO_PALETTES[0];
+        const accent = p[3];
+        ctx.fillStyle = linear(0, 0, W, H, [[0, p[0]], [.55, p[1]], [1, p[2]]]);
+        ctx.fillRect(0, 0, W, H);
+
+        switch (vis.motif) {
+          case 'rain': {
+            ctx.fillStyle = radial(500, 120, 0, 500, 120, 620, [[0, 'rgba(150,200,225,.18)'], [1, 'rgba(0,0,0,0)']]);
+            ctx.fillRect(0, 0, W, H);
+            ctx.save(); ctx.lineCap = 'round';
+            for (let i = 0; i < 220; i += 1) {
+              const x = rand() * W, y = rand() * H, len = 26 + rand() * 50;
+              ctx.strokeStyle = `rgba(190,220,240,${.05 + rand() * .18})`;
+              ctx.lineWidth = 1 + rand() * 1.4;
+              ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - len * .28, y + len); ctx.stroke();
+            }
+            ctx.restore();
+            for (let i = 0; i < 16; i += 1) {
+              const x = rand() * W, y = H * .62 + rand() * H * .32, r = 14 + rand() * 44;
+              ctx.strokeStyle = `rgba(200,230,255,${.05 + rand() * .1})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath(); ctx.ellipse(x, y, r, r * .28, 0, 0, Math.PI * 2); ctx.stroke();
+            }
+            break;
+          }
+          case 'snow': {
+            ctx.fillStyle = radial(320, 180, 0, 320, 180, 660, [[0, 'rgba(210,235,255,.32)'], [1, 'rgba(0,0,0,0)']]);
+            ctx.fillRect(0, 0, W, H);
+            for (let i = 0; i < 260; i += 1) circle(rand() * W, rand() * H, rand() * 2.6 + .6, `rgba(255,255,255,${.2 + rand() * .7})`);
+            for (let i = 0; i < 26; i += 1) {
+              const x = rand() * W, y = rand() * H, r = 4 + rand() * 9;
+              ctx.save(); ctx.translate(x, y);
+              ctx.strokeStyle = `rgba(255,255,255,${.25 + rand() * .45})`; ctx.lineWidth = 1.1;
+              for (let a = 0; a < 6; a += 1) {
+                ctx.rotate(Math.PI / 3);
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -r);
+                ctx.moveTo(0, -r * .6); ctx.lineTo(r * .3, -r * .85);
+                ctx.moveTo(0, -r * .6); ctx.lineTo(-r * .3, -r * .85);
+                ctx.stroke();
+              }
+              ctx.restore();
+            }
+            ctx.fillStyle = 'rgba(235,245,255,.16)';
+            ctx.beginPath(); ctx.moveTo(0, H);
+            ctx.bezierCurveTo(220, H - 140, 420, H - 40, 640, H - 120);
+            ctx.bezierCurveTo(820, H - 190, 930, H - 80, W, H - 110);
+            ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+            break;
+          }
+          case 'forest': {
+            glow(700, 180, 380, 'rgba(180,255,190,.16)');
+            ctx.save(); ctx.globalCompositeOperation = 'lighter';
+            for (let i = 0; i < 11; i += 1) {
+              const a = -1.5 + i * .08;
+              polygon([[700, 150], [700 + Math.cos(a) * 1000, 150 + Math.sin(a) * 1000], [700 + Math.cos(a + .03) * 1000, 150 + Math.sin(a + .03) * 1000]], `rgba(200,255,205,${.02 + rand() * .03})`);
+            }
+            ctx.restore();
+            for (let i = 0; i < 9; i += 1) {
+              const x = rand() * W, w = 10 + rand() * 18, h = 300 + rand() * 380;
+              ctx.fillStyle = `rgba(${8 + rand() * 14},${22 + rand() * 18},${16 + rand() * 14},.78)`;
+              ctx.fillRect(x - w / 2, H - h, w, h);
+              circle(x, H - h, 44 + rand() * 46, `rgba(${18 + rand() * 20},${52 + rand() * 30},${30 + rand() * 22},.6)`);
+            }
+            for (let i = 0; i < 44; i += 1) circle(rand() * W, rand() * H, rand() * 1.8 + .5, `rgba(220,255,210,${.15 + rand() * .5})`);
+            break;
+          }
+          case 'city': {
+            glow(720, 120, 420, 'rgba(255,120,160,.12)');
+            for (let i = 0; i < 16; i += 1) {
+              const w = 40 + rand() * 70, h = 150 + rand() * 380, x = rand() * (W - w), y = H - h;
+              ctx.fillStyle = `rgba(${8 + rand() * 10},${10 + rand() * 14},${26 + rand() * 22},.92)`;
+              ctx.fillRect(x, y, w, h);
+              for (let r = 0; r < Math.floor(h / 34); r += 1) {
+                for (let c = 0; c < Math.floor(w / 26); c += 1) {
+                  if (rand() > .55) {
+                    ctx.fillStyle = `rgba(255,${190 + rand() * 50},${120 + rand() * 60},${.3 + rand() * .5})`;
+                    ctx.fillRect(x + 8 + c * 26, y + 10 + r * 34, 10, 12);
+                  }
+                }
+              }
+            }
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,110,155,.55)'; ctx.lineWidth = 2;
+            ctx.shadowColor = 'rgba(255,110,155,.85)'; ctx.shadowBlur = 18;
+            ctx.beginPath(); ctx.moveTo(70, 430); ctx.lineTo(320, 430); ctx.stroke();
+            ctx.restore();
+            for (let i = 0; i < 70; i += 1) circle(rand() * W, rand() * H * .6, rand() * 1.6 + .4, `rgba(200,220,255,${.1 + rand() * .4})`);
+            break;
+          }
+          case 'fall': {
+            ctx.save(); ctx.globalCompositeOperation = 'lighter';
+            for (let i = 0; i < 80; i += 1) {
+              const x = rand() * W, y = rand() * H, len = 40 + rand() * 170;
+              ctx.strokeStyle = `rgba(230,180,235,${.04 + rand() * .12})`;
+              ctx.lineWidth = 1.6 + rand() * 2;
+              ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (rand() - .5) * 40, y + len); ctx.stroke();
+            }
+            ctx.restore();
+            glow(500, 190, 320, 'rgba(230,160,220,.26)');
+            for (let i = 0; i < 9; i += 1) {
+              const x = 300 + rand() * 420, y = 120 + rand() * 360, r = 6 + rand() * 16;
+              circle(x, y, r, `rgba(245,220,255,${.18 + rand() * .4})`);
+            }
+            break;
+          }
+          case 'house': {
+            const vx = W * .62, vy = H * .46;
+            ctx.save(); ctx.strokeStyle = 'rgba(240,200,150,.16)'; ctx.lineWidth = 1.4;
+            for (let i = 0; i < 9; i += 1) {
+              const t = i / 8;
+              ctx.beginPath(); ctx.moveTo(0, H * t * .9); ctx.lineTo(vx, vy); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(W, H * t * .9); ctx.lineTo(vx, vy); ctx.stroke();
+            }
+            ctx.restore();
+            glow(vx, vy, 320, 'rgba(255,215,160,.3)');
+            ctx.fillStyle = 'rgba(255,225,180,.14)';
+            ctx.fillRect(vx - 58, vy - 88, 116, 176);
+            ctx.strokeStyle = 'rgba(255,220,170,.5)'; ctx.lineWidth = 2;
+            ctx.strokeRect(vx - 58, vy - 88, 116, 176);
+            circle(vx + 32, vy + 6, 3.4, 'rgba(255,235,200,.85)');
+            for (let i = 0; i < 40; i += 1) circle(rand() * W, rand() * H, rand() * 1.6 + .4, `rgba(255,225,185,${.06 + rand() * .18})`);
+            break;
+          }
+          case 'animal': {
+            glow(500, 120, 340, 'rgba(200,230,180,.12)');
+            for (let i = 0; i < 6; i += 1) {
+              const x = 120 + rand() * (W - 240), y = 200 + rand() * (H - 320), gap = 18 + rand() * 12, r = 4 + rand() * 3;
+              const c = `rgba(240,${210 + rand() * 30},${140},${.55 + rand() * .35})`;
+              circle(x - gap / 2, y, r, c); circle(x + gap / 2, y, r, c);
+            }
+            for (let i = 0; i < 80; i += 1) {
+              const x = rand() * W, h = 40 + rand() * 90;
+              ctx.fillStyle = `rgba(${10 + rand() * 12},${28 + rand() * 16},${18 + rand() * 12},.55)`;
+              ctx.beginPath(); ctx.moveTo(x, H);
+              ctx.quadraticCurveTo(x + 10, H - h * .6, x + 4, H - h);
+              ctx.quadraticCurveTo(x - 8, H - h * .5, x - 14, H);
+              ctx.fill();
+            }
+            break;
+          }
+          case 'fire': {
+            glow(500, 620, 540, 'rgba(255,120,40,.45)');
+            for (let i = 0; i < 7; i += 1) {
+              const cx = 170 + i * 110 + rand() * 40, base = H - 30, hgt = 180 + rand() * 260, wd = 50 + rand() * 70;
+              ctx.fillStyle = linear(cx, base, cx, base - hgt, [[0, 'rgba(255,120,30,.55)'], [.6, 'rgba(255,190,90,.35)'], [1, 'rgba(255,240,200,0)']]);
+              ctx.beginPath(); ctx.moveTo(cx - wd / 2, base);
+              ctx.bezierCurveTo(cx - wd * .7, base - hgt * .5, cx - wd * .1, base - hgt * .75, cx, base - hgt);
+              ctx.bezierCurveTo(cx + wd * .15, base - hgt * .7, cx + wd * .7, base - hgt * .45, cx + wd / 2, base);
+              ctx.fill();
+            }
+            for (let i = 0; i < 120; i += 1) circle(rand() * W, rand() * H, rand() * 2 + .6, `rgba(255,${170 + rand() * 70},${90 + rand() * 60},${.15 + rand() * .5})`);
+            break;
+          }
+          case 'space': {
+            for (let i = 0; i < 420; i += 1) circle(rand() * W, rand() * H, rand() * 1.9 + .4, `rgba(255,255,255,${.15 + rand() * .8})`);
+            for (let i = 0; i < 5; i += 1) glow(rand() * W, rand() * H, 220 + rand() * 220, `rgba(${120 + rand() * 80},${90 + rand() * 70},220,.13)`);
+            circle(640, 330, 150, 'rgba(150,130,255,.55)');
+            ctx.save();
+            ctx.strokeStyle = 'rgba(220,210,255,.5)'; ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.ellipse(640, 330, 240, 70, -.35, 0, Math.PI * 2); ctx.stroke();
+            ctx.restore();
+            glow(640, 330, 220, 'rgba(160,140,255,.3)');
+            break;
+          }
+          case 'mirror': {
+            glow(W / 2, 390, 420, 'rgba(200,215,255,.2)');
+            ctx.fillStyle = 'rgba(255,255,255,.05)';
+            ctx.fillRect(W / 2 - .8, 0, 1.6, H);
+            ctx.save();
+            for (let i = 0; i < 16; i += 1) {
+              const x = rand() * W / 2, y = rand() * H, r = 30 + rand() * 90;
+              ctx.strokeStyle = `rgba(200,215,255,${.04 + rand() * .08})`; ctx.lineWidth = 1;
+              ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+              ctx.beginPath(); ctx.arc(W - x, y, r, 0, Math.PI * 2); ctx.stroke();
+            }
+            ctx.restore();
+            for (let i = 0; i < 60; i += 1) {
+              const x = rand() * W / 2, y = rand() * H;
+              circle(x, y, rand() * 1.6 + .4, `rgba(220,230,255,${.15 + rand() * .5})`);
+              circle(W - x, y, rand() * 1.6 + .4, `rgba(220,230,255,${.1 + rand() * .35})`);
+            }
+            break;
+          }
+          case 'music': {
+            glow(500, 300, 440, 'rgba(255,150,220,.2)');
+            ctx.save(); ctx.strokeStyle = 'rgba(255,180,230,.16)';
+            for (let i = 0; i < 9; i += 1) {
+              ctx.lineWidth = 1 + i * .5;
+              ctx.beginPath(); ctx.ellipse(500, 340, 90 + i * 60, 60 + i * 42, 0, 0, Math.PI * 2); ctx.stroke();
+            }
+            ctx.restore();
+            for (let i = 0; i < 14; i += 1) {
+              const x = 120 + rand() * (W - 240), y = 120 + rand() * (H - 260), s = 10 + rand() * 16;
+              const c = `rgba(255,200,240,${.35 + rand() * .5})`;
+              circle(x, y, s, c);
+              ctx.fillStyle = c; ctx.fillRect(x + s * .7, y - s * 2.4, 3, s * 2.4);
+              ctx.beginPath(); ctx.moveTo(x + s * .7, y - s * 2.4);
+              ctx.quadraticCurveTo(x + s * 2.2, y - s * 2, x + s * 2, y - s * 1.2);
+              ctx.lineWidth = 3; ctx.strokeStyle = c; ctx.stroke();
+            }
+            break;
+          }
+          case 'food': {
+            glow(500, 420, 460, 'rgba(255,200,130,.22)');
+            ctx.strokeStyle = 'rgba(255,225,180,.35)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.ellipse(500, 470, 240, 90, 0, 0, Math.PI * 2); ctx.stroke();
+            circle(500, 455, 120, 'rgba(255,220,170,.18)');
+            ctx.save(); ctx.lineCap = 'round';
+            for (let i = 0; i < 9; i += 1) {
+              const x = 360 + i * 36 + rand() * 16;
+              ctx.strokeStyle = `rgba(255,240,220,${.08 + rand() * .16})`;
+              ctx.lineWidth = 2 + rand() * 2;
+              ctx.beginPath(); ctx.moveTo(x, 380);
+              ctx.bezierCurveTo(x - 24, 320, x + 26, 270, x - 6, 200); ctx.stroke();
+            }
+            ctx.restore();
+            for (let i = 0; i < 70; i += 1) circle(rand() * W, rand() * H, rand() * 2 + .5, `rgba(255,230,190,${.1 + rand() * .35})`);
+            break;
+          }
+          case 'wedding': {
+            glow(500, 260, 480, 'rgba(255,225,235,.28)');
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,235,245,.4)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(500, 470, 230, Math.PI, 0); ctx.stroke();
+            ctx.restore();
+            for (let i = 0; i < 90; i += 1) {
+              const x = rand() * W, y = rand() * H, s = 3 + rand() * 7;
+              ctx.save(); ctx.translate(x, y); ctx.rotate(rand() * Math.PI);
+              ctx.fillStyle = `rgba(255,${190 + rand() * 50},${215 + rand() * 35},${.3 + rand() * .5})`;
+              ctx.beginPath(); ctx.ellipse(0, 0, s, s * .55, 0, 0, Math.PI * 2); ctx.fill();
+              ctx.restore();
+            }
+            break;
+          }
+          case 'baby': {
+            glow(500, 330, 470, 'rgba(255,235,205,.3)');
+            circle(500, 330, 190, 'rgba(255,240,220,.2)');
+            circle(500, 330, 150, 'rgba(255,245,230,.16)');
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,240,220,.28)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(500, 330, 210, 0, Math.PI * 2); ctx.stroke();
+            ctx.restore();
+            for (let i = 0; i < 120; i += 1) circle(rand() * W, rand() * H, rand() * 2.2 + .5, `rgba(255,245,225,${.15 + rand() * .5})`);
+            ctx.fillStyle = 'rgba(255,240,225,.1)';
+            ctx.beginPath(); ctx.moveTo(0, H);
+            ctx.bezierCurveTo(200, H - 170, 420, H - 90, 640, H - 150);
+            ctx.bezierCurveTo(820, H - 200, 930, H - 110, W, H - 140);
+            ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+            break;
+          }
+          case 'farewell': {
+            glow(500, 600, 440, 'rgba(255,210,150,.1)');
+            for (let i = 0; i < 3; i += 1) {
+              const x = 300 + i * 200 + rand() * 30, base = H - 90;
+              ctx.fillStyle = 'rgba(240,235,225,.5)';
+              ctx.fillRect(x - 9, base - 90, 18, 90);
+              glow(x, base - 110, 90, 'rgba(255,215,150,.35)');
+              ctx.fillStyle = 'rgba(255,225,170,.9)';
+              ctx.beginPath(); ctx.moveTo(x, base - 140);
+              ctx.quadraticCurveTo(x + 9, base - 115, x, base - 96);
+              ctx.quadraticCurveTo(x - 9, base - 115, x, base - 140);
+              ctx.fill();
+            }
+            for (let i = 0; i < 80; i += 1) circle(rand() * W, rand() * H, rand() * 2 + .6, `rgba(255,230,190,${.12 + rand() * .45})`);
+            break;
+          }
+          case 'numbers': {
+            ctx.save(); ctx.textAlign = 'center';
+            for (let i = 0; i < 30; i += 1) {
+              const x = rand() * W, y = rand() * H;
+              ctx.fillStyle = `rgba(170,215,255,${.06 + rand() * .22})`;
+              ctx.font = `${28 + rand() * 70}px monospace`;
+              ctx.fillText(String(Math.floor(rand() * 90) + 10), x, y);
+            }
+            ctx.restore();
+            ctx.strokeStyle = 'rgba(170,215,255,.08)'; ctx.lineWidth = 1;
+            for (let x = 0; x <= W; x += 100) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+            for (let y = 0; y <= H; y += 78) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+            glow(500, 390, 400, 'rgba(140,200,255,.14)');
+            break;
+          }
+          default: {
+            for (let i = 0; i < 260; i += 1) circle(rand() * W, rand() * H, rand() * 2 + .4, `rgba(255,255,255,${.15 + rand() * .7})`);
+            glow(560, 300, 420, `rgba(${parseInt(accent.slice(1, 3), 16)},${parseInt(accent.slice(3, 5), 16)},${parseInt(accent.slice(5, 7), 16)},.24)`);
+            ctx.save(); ctx.lineCap = 'round';
+            for (let i = 0; i < 14; i += 1) {
+              ctx.beginPath(); ctx.moveTo(-100, 660 - i * 15);
+              ctx.bezierCurveTo(220, 240 + i * 12, 630, 760 - i * 37, 1100, 190 + i * 4);
+              ctx.strokeStyle = `rgba(${parseInt(accent.slice(1, 3), 16)},${parseInt(accent.slice(3, 5), 16)},${parseInt(accent.slice(5, 7), 16)},${.03 + i * .014})`;
+              ctx.lineWidth = 3 + i * .7; ctx.stroke();
+            }
+            ctx.restore();
+            const pts = [];
+            for (let i = 0; i < 7; i += 1) pts.push([160 + rand() * (W - 320), 150 + rand() * (H - 300)]);
+            ctx.save();
+            ctx.strokeStyle = `rgba(${parseInt(accent.slice(1, 3), 16)},${parseInt(accent.slice(3, 5), 16)},${parseInt(accent.slice(5, 7), 16)},.4)`;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+            for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i][0], pts[i][1]);
+            ctx.stroke(); ctx.restore();
+            for (let i = 0; i < pts.length; i += 1) {
+              circle(pts[i][0], pts[i][1], 3.4, 'rgba(255,250,230,.95)');
+              glow(pts[i][0], pts[i][1], 26, `rgba(${parseInt(accent.slice(1, 3), 16)},${parseInt(accent.slice(3, 5), 16)},${parseInt(accent.slice(5, 7), 16)},.5)`);
+            }
+            break;
+          }
         }
-        addGrain(rand);vignette();
+        addGrain(rand);
+        vignette();
       }
 
       function drawDream(theme, dream) {
-        const rand = randomGenerator(hashCode(`${theme}:${dream}`));
-        ctx.save(); ctx.clearRect(0,0,W,H); ctx.lineJoin='round';
-        ({ fly:paintFly, chase:paintChase, sea:paintSea, memory:paintMemory, exam:paintExam, teeth:paintTeeth, default:paintDefault }[theme] || paintDefault)(rand);
+        const rand = randomGenerator(hashCode(`${theme.key}:${dream}`));
+        ctx.save(); ctx.clearRect(0, 0, W, H); ctx.lineJoin = 'round';
+        const painters = { fly: paintFly, chase: paintChase, sea: paintSea, memory: paintMemory, exam: paintExam, teeth: paintTeeth };
+        if (painters[theme.key]) painters[theme.key](rand);
+        else paintScene(theme.vis || { palette: AUTO_PALETTES[0], motif: 'constellation' }, rand);
         ctx.restore();
       }
 
