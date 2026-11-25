@@ -86,16 +86,13 @@
     }
 
     .brand-mark {
-      display: grid;
-      place-items: center;
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
-      color: white;
-      background: linear-gradient(145deg, #8b72ff, #6345e8);
-      box-shadow: 0 5px 12px rgba(115, 87, 246, .24);
-      font-size: 16px;
-      transform: rotate(-5deg);
+      display: block;
+      flex: 0 0 auto;
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 5px rgba(43, 42, 87, .22));
+      transform: rotate(-4deg);
     }
 
     .icon-button, .achievement-button {
@@ -1109,13 +1106,132 @@
         transition-duration: .01ms !important;
       }
     }
+
+    /* ===== 视觉打磨覆盖层（仅覆盖，不改动上方规则） ===== */
+
+    /* 纸感背景：在原有径向渐变上叠加极淡噪点 */
+    body {
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(115, 87, 246, .10), transparent 28%),
+        radial-gradient(circle at 85% 80%, rgba(32, 201, 180, .10), transparent 30%),
+        radial-gradient(rgba(52, 46, 96, .05) .55px, transparent .55px);
+      background-size: auto, auto, 8px 8px;
+      background-repeat: no-repeat, no-repeat, repeat;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .app {
+      background-image:
+        radial-gradient(circle at 100% 0%, rgba(115, 87, 246, .07), transparent 25%),
+        radial-gradient(circle at 0% 92%, rgba(255, 184, 76, .08), transparent 25%),
+        radial-gradient(rgba(52, 46, 96, .045) .55px, transparent .55px);
+      background-size: auto, auto, 7px 7px;
+      background-repeat: no-repeat, no-repeat, repeat;
+    }
+
+    /* 封面标题：紫色渐变文字 + 缓慢流动 */
+    .cover-title {
+      background-image: linear-gradient(100deg, #241a4d 0%, #5b3ad6 20%, #8c5bf0 40%, #b555d8 58%, #6a3fe0 78%, #241a4d 100%);
+      background-size: 220% 100%;
+      background-position: 0% 50%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      animation: titleFlow 16s ease-in-out infinite;
+    }
+
+    @keyframes titleFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* 翻牌：加强透视景深 + 渐变高光 */
+    .card-stage {
+      perspective: 1200px;
+      perspective-origin: 50% 42%;
+    }
+
+    .flip-card { transition: transform .25s cubic-bezier(.22, 1, .36, 1); }
+
+    .fact-card {
+      background:
+        linear-gradient(128deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .07) 26%, rgba(255, 255, 255, 0) 48%),
+        linear-gradient(145deg, var(--card-start), var(--card-end));
+      box-shadow:
+        0 26px 48px color-mix(in srgb, var(--card-end) 30%, transparent),
+        0 6px 14px rgba(34, 26, 70, .10),
+        inset 0 1px rgba(255, 255, 255, .30);
+      transition: box-shadow .25s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    /* 成就卡：加深一层柔和阴影 + 悬浮上浮 */
+    .milestone-card {
+      box-shadow: 0 10px 26px rgba(43, 42, 87, .07), 0 2px 6px rgba(43, 42, 87, .035);
+      transition:
+        transform .25s cubic-bezier(.22, 1, .36, 1),
+        box-shadow .25s cubic-bezier(.22, 1, .36, 1),
+        border-color .25s ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .card-stage:hover .flip-card { transform: translateY(-3px); }
+      .card-stage:hover .fact-card {
+        box-shadow:
+          0 32px 60px color-mix(in srgb, var(--card-end) 36%, transparent),
+          0 10px 20px rgba(34, 26, 70, .14),
+          inset 0 1px rgba(255, 255, 255, .34);
+      }
+      .milestone-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(43, 42, 87, .12), 0 4px 10px rgba(43, 42, 87, .05);
+      }
+    }
+
+    /* 主按钮：轻微渐变更亮 + 悬浮上浮 + 按下回缩 */
+    .primary-button {
+      background: linear-gradient(110deg, #8a6cfd, #6a4ae9 62%, #5b3bd6);
+      box-shadow: 0 14px 28px rgba(103, 72, 229, .30), inset 0 1px rgba(255, 255, 255, .28);
+      transition:
+        transform .25s cubic-bezier(.22, 1, .36, 1),
+        box-shadow .25s cubic-bezier(.22, 1, .36, 1),
+        background .25s ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .primary-button:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(110deg, #9378ff, #7357f0 62%, #6a4ae2);
+        box-shadow: 0 20px 34px rgba(103, 72, 229, .34), inset 0 1px rgba(255, 255, 255, .34);
+      }
+    }
+
+    .primary-button:active {
+      transform: translateY(0) scale(.97);
+      box-shadow: 0 8px 18px rgba(103, 72, 229, .24), inset 0 1px rgba(255, 255, 255, .24);
+    }
+
+    /* 键盘焦点环：更清晰，且不依赖背景 */
+    button:focus-visible, [role="button"]:focus-visible {
+      outline: 3px solid rgba(115, 87, 246, .55);
+      outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cover-title { animation: none !important; background-position: 0% 50% !important; }
+      .flip-card, .fact-card, .milestone-card, .primary-button { transition: none !important; }
+      .card-stage:hover .flip-card { transform: none !important; }
+      .milestone-card:hover { transform: none !important; }
+      .primary-button:hover { transform: none !important; }
+    }
   </style>
 </head>
 <body>
   <main class="app" id="app">
     <section class="screen cover-screen" id="coverScreen" aria-labelledby="coverTitle">
       <header class="cover-nav">
-        <div class="brand"><span class="brand-mark">?</span>冷知识探索器</div>
+        <div class="brand"><img class="brand-mark" src="img/mascot.png" alt="">冷知识探索器</div>
         <span class="cover-count">20 个神奇真相</span>
       </header>
 
@@ -1159,7 +1275,7 @@
     <section class="screen explore-screen" id="exploreScreen" aria-label="翻牌探索" hidden>
       <header class="topbar">
         <button class="icon-button" id="exploreBackButton" type="button" aria-label="返回封面">←</button>
-        <div class="brand"><span class="brand-mark">?</span>冷知识探索器</div>
+        <div class="brand"><img class="brand-mark" src="img/mascot.png" alt="">冷知识探索器</div>
         <button class="achievement-button" id="achievementButton" type="button">🏆 <span>成就</span></button>
       </header>
 
@@ -1232,7 +1348,7 @@
     <section class="screen achievements-screen" id="achievementsScreen" aria-label="我的成就" hidden>
       <header class="topbar">
         <button class="icon-button" id="achievementBackButton" type="button" aria-label="返回上一页">←</button>
-        <div class="brand"><span class="brand-mark">🏆</span>好奇心收藏馆</div>
+        <div class="brand"><img class="brand-mark" src="img/mascot.png" alt="">好奇心收藏馆</div>
         <span style="width:38px" aria-hidden="true"></span>
       </header>
 

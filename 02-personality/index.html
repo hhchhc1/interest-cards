@@ -158,15 +158,17 @@
     }
 
     .brand-star {
-      display: inline-grid;
-      width: 25px;
-      height: 25px;
-      place-items: center;
-      border: 1px solid rgba(255, 255, 255, .28);
-      border-radius: 50%;
-      color: var(--yellow);
-      font-size: 13px;
-      box-shadow: inset 0 0 12px rgba(255, 255, 255, .08);
+      display: block;
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      object-fit: contain;
+      vertical-align: middle;
+      filter: drop-shadow(0 2px 4px rgba(18, 6, 36, .45)) drop-shadow(0 0 7px rgba(255, 214, 140, .32));
     }
 
     /* 封面 */
@@ -1457,6 +1459,114 @@
         transition-duration: .01ms !important;
       }
     }
+
+    /* ============ 视觉打磨：以下为追加覆盖样式 ============ */
+
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* 缓慢漂移的极光层：固定定位覆盖全屏，屏幕混合保持极淡，不压住内容 */
+    body::before {
+      position: fixed;
+      z-index: 1;
+      inset: -25%;
+      background:
+        radial-gradient(38% 42% at 24% 26%, rgba(150, 108, 255, .12), transparent 70%),
+        radial-gradient(36% 40% at 78% 20%, rgba(255, 126, 190, .10), transparent 72%),
+        radial-gradient(42% 44% at 64% 82%, rgba(126, 232, 255, .075), transparent 74%);
+      content: "";
+      mix-blend-mode: screen;
+      opacity: .9;
+      pointer-events: none;
+      animation: auroraDrift 26s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    @keyframes auroraDrift {
+      from { transform: translate3d(-4%, -3%, 0) scale(1) rotate(-2deg); }
+      to { transform: translate3d(5%, 4%, 0) scale(1.14) rotate(3deg); }
+    }
+
+    /* 结果卡一次性扫光：挂在最后绘制的 card-footer 上，覆盖整张卡片 */
+    .result-card .card-footer::before {
+      position: absolute;
+      z-index: 3;
+      top: -880px;
+      right: -21px;
+      bottom: -17px;
+      left: -21px;
+      background: linear-gradient(104deg,
+        transparent 34%,
+        rgba(255, 255, 255, .05) 42%,
+        rgba(255, 255, 255, .30) 50%,
+        rgba(255, 255, 255, .05) 58%,
+        transparent 66%);
+      background-size: 260% 100%;
+      background-position: 0 0;
+      content: "";
+      opacity: 0;
+      pointer-events: none;
+      animation: cardSweep 1.25s .35s cubic-bezier(.3, .7, .2, 1) 1 both;
+    }
+
+    @keyframes cardSweep {
+      0% { opacity: 0; background-position: 0 0; }
+      15% { opacity: .85; }
+      75% { opacity: .4; }
+      100% { opacity: 0; background-position: 100% 0; }
+    }
+
+    /* 选项按钮：hover 轻微右移 + 边框提亮，按下轻微收缩 */
+    .quiz-screen .option-card:not(.dimmed):hover {
+      border-color: rgba(255, 232, 248, .62);
+      transform: translateX(4px);
+    }
+
+    .quiz-screen .option-card:not(.dimmed):active {
+      transform: translateX(4px) scale(.985);
+    }
+
+    /* 进度条发光 */
+    .progress-fill,
+    .loading-fill {
+      box-shadow: 0 0 10px rgba(216, 180, 255, .85), 0 0 22px rgba(255, 143, 203, .5);
+    }
+
+    /* 屏幕切换：淡入上移 */
+    .screen:not([hidden]) {
+      animation: screenRise .45s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    @keyframes screenRise {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 键盘焦点环 */
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid #ffe3f4;
+      outline-offset: 3px;
+      box-shadow: 0 0 0 5px rgba(185, 160, 255, .28);
+    }
+
+    /* 关闭新增动画 */
+    @media (prefers-reduced-motion: reduce) {
+      body::before,
+      .result-card .card-footer::before {
+        animation: none !important;
+      }
+
+      .result-card .card-footer::before {
+        opacity: 0 !important;
+      }
+
+      .screen:not([hidden]) {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1470,7 +1580,7 @@
 
     <section class="screen cover-screen" id="coverScreen" aria-labelledby="coverTitle">
       <header class="cover-nav">
-        <div class="cover-brand"><span class="brand-star">✦</span> SOUL / 001</div>
+        <div class="cover-brand"><img class="brand-star" src="img/mascot.png" alt=""> SOUL / 001</div>
         <span class="fun-badge">仅供娱乐</span>
       </header>
 
@@ -1502,7 +1612,7 @@
 
     <section class="screen quiz-screen" id="quizScreen" aria-label="人格测试题目" hidden>
       <header class="quiz-header">
-        <div class="mini-brand"><span class="brand-star">✦</span> SOUL SCAN</div>
+        <div class="mini-brand"><img class="brand-star" src="img/mascot.png" alt=""> SOUL SCAN</div>
         <div class="step-count" id="stepCount">01 <span>/ 05</span></div>
       </header>
       <div class="progress-track" id="progressTrack" role="progressbar" aria-label="答题进度" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
@@ -1513,7 +1623,7 @@
     </section>
 
     <section class="screen loading-screen" id="loadingScreen" aria-label="正在生成测试结果" hidden>
-      <div class="mini-brand"><span class="brand-star">✦</span> SOUL SCAN</div>
+      <div class="mini-brand"><img class="brand-star" src="img/mascot.png" alt=""> SOUL SCAN</div>
       <div class="loading-content">
         <div class="loader-visual" aria-hidden="true">
           <div class="loader-ring ring-one"></div>
@@ -1533,7 +1643,7 @@
 
     <section class="screen result-screen" id="resultScreen" aria-label="人格测试结果" hidden>
       <header class="result-header">
-        <div class="mini-brand"><span class="brand-star">✦</span> SOUL REPORT</div>
+        <div class="mini-brand"><img class="brand-star" src="img/mascot.png" alt=""> SOUL REPORT</div>
         <span class="result-status">测试完成</span>
       </header>
       <div class="result-intro">

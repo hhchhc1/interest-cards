@@ -200,32 +200,14 @@
     }
 
     .brand-mark {
-      position: relative;
-      width: 27px;
-      height: 27px;
+      display: block;
+      width: 26px;
+      height: 26px;
       flex: 0 0 auto;
-    }
-
-    .brand-mark::before,
-    .brand-mark::after {
-      content: "";
-      position: absolute;
-      width: 17px;
-      height: 17px;
-      top: 5px;
-      border: 2px solid;
-      border-radius: 6px 9px 6px 9px;
-      transform: rotate(45deg);
-    }
-
-    .brand-mark::before {
-      left: 2px;
-      border-color: var(--cyan);
-    }
-
-    .brand-mark::after {
-      right: 2px;
-      border-color: var(--pink);
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 2px 5px rgba(254, 44, 85, 0.45)) drop-shadow(0 0 8px rgba(37, 244, 238, 0.22));
     }
 
     .brand-dim {
@@ -1632,6 +1614,113 @@
         scroll-behavior: auto !important;
       }
     }
+
+    /* ===== 视觉打磨：追加覆盖样式 ===== */
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* 封面标题渐变字：缓慢流动 */
+    .welcome-copy h1 .gradient-word {
+      background-size: 200% 100%;
+      background-position: 0% 50%;
+      animation: gradientFlow 7s ease-in-out infinite;
+      will-change: background-position;
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* 主按钮：粉 / 青双色柔光 */
+    .primary-button {
+      transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), opacity 0.25s ease;
+      box-shadow:
+        0 12px 30px rgba(254, 44, 85, 0.34),
+        0 8px 24px rgba(37, 244, 238, 0.16),
+        -2px 0 0 rgba(37, 244, 238, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .primary-button:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 16px 38px rgba(254, 44, 85, 0.42),
+        0 10px 30px rgba(37, 244, 238, 0.24),
+        -2px 0 0 rgba(37, 244, 238, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    .primary-button:active {
+      transform: scale(0.97);
+    }
+
+    .primary-button:disabled,
+    .primary-button:disabled:hover {
+      transform: none;
+      transition: none;
+      box-shadow: 0 12px 30px rgba(254, 44, 85, 0.26), -2px 0 0 rgba(37, 244, 238, 0.5);
+    }
+
+    /* 卡片 / 面板：hover 上浮 + 深阴影 */
+    .glass-card:not(.editor-panel) {
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .glass-card:not(.editor-panel):hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.17);
+      box-shadow: 0 26px 58px rgba(0, 0, 0, 0.34), 0 0 24px rgba(37, 244, 238, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* 屏幕切换：淡入 + 轻微上移 */
+    .screen.active {
+      animation: screenEnter 0.46s var(--ease);
+    }
+
+    @keyframes screenEnter {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 键盘焦点环 */
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .welcome-copy h1 .gradient-word {
+        animation: none;
+        background-position: 0% 50%;
+      }
+
+      .screen.active {
+        animation: none;
+      }
+
+      .primary-button,
+      .glass-card:not(.editor-panel) {
+        transition: none;
+      }
+
+      .primary-button:hover,
+      .primary-button:active,
+      .glass-card:not(.editor-panel):hover {
+        transform: none;
+      }
+
+      .primary-button:hover {
+        box-shadow: 0 12px 30px rgba(254, 44, 85, 0.26), 0 8px 24px rgba(37, 244, 238, 0.14),
+          -2px 0 0 rgba(37, 244, 238, 0.45);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1654,7 +1743,7 @@
     <div id="stage">
       <section class="screen welcome-screen active" id="welcomeScreen" data-screen="welcome">
         <header class="topbar">
-          <div class="brand"><span class="brand-mark"></span><span>MOQI LAB</span></div>
+          <div class="brand"><img class="brand-mark" src="img/mascot.png" alt=""><span>MOQI LAB</span></div>
           <span class="brand-dim">友情质检中心</span>
         </header>
 
@@ -1713,7 +1802,7 @@
 
       <section class="screen share-screen" id="shareScreen" data-screen="share">
         <header class="topbar">
-          <div class="brand"><span class="brand-mark"></span><span>挑战已生成</span></div>
+          <div class="brand"><img class="brand-mark" src="img/mascot.png" alt=""><span>挑战已生成</span></div>
           <span class="brand-dim">等待有缘人</span>
         </header>
         <div class="share-content">
@@ -1774,7 +1863,7 @@
       <section class="screen result-screen" id="resultScreen" data-screen="result">
         <div class="celebration" id="celebration" aria-hidden="true"></div>
         <header class="topbar">
-          <div class="brand"><span class="brand-mark"></span><span>默契检测报告</span></div>
+          <div class="brand"><img class="brand-mark" src="img/mascot.png" alt=""><span>默契检测报告</span></div>
           <span class="brand-dim">结果仅供上头</span>
         </header>
         <div class="result-content">
