@@ -645,6 +645,7 @@
         [/死亡|去世|葬礼|火化|墓碑/g, '远处一束白花，几个穿黑衣的人安静站立，天空低沉'],
         [/打架|打斗|争吵|追打/g, '人群紧张地对峙，空气里飘着灰尘与火花'],
         [/坠落|掉下去|摔下去/g, '身体悬在半空，四周是向上流动的光带'],
+        [/触电|被电|电击|漏电|电流/g, '幽蓝的电光在黑暗中蔓延，墙面映着冷色光斑，远处应急灯亮着'],
         [/洪水|海啸|淹水/g, '水漫过街道，倒影被涟漪打碎'],
         [/火灾|着火|大火/g, '火焰与浓烟升腾，橙红色光映在墙面上']
       ];
@@ -655,6 +656,11 @@
           visual = visual.replace(pattern, replacement);
         });
         return `超现实梦境摄影作品，画面必须同时包含：${visual}。电影感光影，柔和雾气，梦幻色调，细腻质感，构图完整，画面中没有文字。`;
+      }
+
+      // 首轮失败（内容审核、超时、并发限制）时，用主题氛围重试一次，提高出图成功率
+      function buildThemePrompt(theme) {
+        return `超现实梦境摄影作品，整体情绪是「${theme.stamp}」，画面传达「${theme.title}」的意境。电影感光影，柔和雾气，梦幻色调，细腻质感，构图完整，画面中没有文字。`;
       }
 
       const themes = {
@@ -792,7 +798,7 @@
         },
         injury: {
           title: '给自己一点被照顾的时间', subtitle: 'HEALING, SOFTLY', stamp: '愈合',
-          keywords: ['受伤', '流血', '伤口', '医院', '手术', '骨折', '疼痛', '绷带', '急诊', '车祸', '事故', '打针'],
+          keywords: ['受伤', '流血', '伤口', '医院', '手术', '骨折', '疼痛', '绷带', '急诊', '车祸', '事故', '打针', '触电', '电击', '被电', '电流', '漏电', '烧伤', '烫伤', '摔伤', '出血', '吊瓶'],
           vis: { palette: ['#0b1220', '#1a2a3f', '#2f4a66', '#ffd9c2'], motif: 'injury' },
           reading: '疼痛出现在梦里，往往是身体或情绪在请求你的注意。它不想吓你，只是想让你停一下、看看哪里需要被照顾。对自己温柔一点，恢复本来就需要时间。'
         }
@@ -1011,15 +1017,17 @@
         }
         const thirdStepText = steps[2].lastElementChild;
         if (thirdStepText) thirdStepText.textContent = '正在为你绘制专属画面...';
-        const aiTask = requestDreamImage(dream).then(url => { pendingArtwork = url; });
+        const aiTask = requestDreamImage(dream, currentTheme)
+          .then(url => (url ? url : requestDreamImage(dream, currentTheme, true)))
+          .then(url => { pendingArtwork = url; });
         Promise.all([wait(2780), Promise.race([aiTask, wait(AI_TIMEOUT + 500)])]).then(showResult);
       }
 
-      async function requestDreamImage(dream) {
+      async function requestDreamImage(dream, theme, simplified) {
         if (!DREAM_API && !ZHIPU_KEY) return null;
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), AI_TIMEOUT);
-        const prompt = buildDreamPrompt(dream);
+        const timer = setTimeout(() => controller.abort(), simplified ? 26000 : 34000);
+        const prompt = simplified && theme ? buildThemePrompt(theme) : buildDreamPrompt(dream);
         try {
           const response = await fetch(DREAM_API || ZHIPU_URL, {
             method: 'POST',
@@ -1797,6 +1805,18 @@
               circle(pts[i][0], pts[i][1], 3.4, 'rgba(255,250,230,.95)');
               glow(pts[i][0], pts[i][1], 26, `rgba(${parseInt(accent.slice(1, 3), 16)},${parseInt(accent.slice(3, 5), 16)},${parseInt(accent.slice(5, 7), 16)},.5)`);
             }
+            // 远景地平线与山影，让兜底画面也有纵深和落点
+            ctx.fillStyle = 'rgba(6, 10, 22, .5)';
+            ctx.beginPath(); ctx.moveTo(0, H);
+            ctx.lineTo(0, H - 140);
+            ctx.bezierCurveTo(W * .22, H - 205, W * .42, H - 110, W * .6, H - 160);
+            ctx.bezierCurveTo(W * .78, H - 200, W * .9, H - 140, W, H - 170);
+            ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = 'rgba(8, 14, 28, .55)';
+            ctx.beginPath(); ctx.moveTo(0, H);
+            ctx.lineTo(0, H - 60);
+            ctx.bezierCurveTo(W * .3, H - 110, W * .55, H - 40, W, H - 95);
+            ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
             break;
           }
         }
