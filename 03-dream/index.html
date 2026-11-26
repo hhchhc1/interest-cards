@@ -650,12 +650,13 @@
         [/火灾|着火|大火/g, '火焰与浓烟升腾，橙红色光映在墙面上']
       ];
 
-      function buildDreamPrompt(dream) {
+      function buildDreamPrompt(dream, theme) {
         let visual = dream;
         DREAM_VISUAL_MAP.forEach(([pattern, replacement]) => {
           visual = visual.replace(pattern, replacement);
         });
-        return `超现实梦境摄影作品，画面必须同时包含：${visual}。电影感光影，柔和雾气，梦幻色调，细腻质感，构图完整，画面中没有文字。`;
+        const mood = theme ? `，整体氛围是「${theme.stamp}」` : '';
+        return `超现实梦境摄影作品，画面必须同时包含：${visual.slice(0, 120)}${mood}。电影感光影，柔和雾气，梦幻色调，细腻质感，构图完整，画面中没有文字。`;
       }
 
       // 首轮失败（内容审核、超时、并发限制）时，用主题氛围重试一次，提高出图成功率
@@ -1027,7 +1028,7 @@
         if (!DREAM_API && !ZHIPU_KEY) return null;
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), simplified ? 26000 : 34000);
-        const prompt = simplified && theme ? buildThemePrompt(theme) : buildDreamPrompt(dream);
+        const prompt = simplified && theme ? buildThemePrompt(theme) : buildDreamPrompt(dream, theme);
         try {
           const response = await fetch(DREAM_API || ZHIPU_URL, {
             method: 'POST',
@@ -1042,6 +1043,7 @@
           if (DREAM_API) return data && typeof data.image === 'string' ? data.image : null;
           return data && data.data && data.data[0] && data.data[0].url ? data.data[0].url : null;
         } catch (error) {
+          console.warn('[dream] AI 生图未成功，使用手绘兜底：', error && error.message ? error.message : error);
           return null;
         } finally {
           clearTimeout(timer);
